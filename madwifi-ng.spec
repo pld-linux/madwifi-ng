@@ -7,7 +7,6 @@
 %bcond_without	smp		# don't build SMP module
 %bcond_without	userspace	# don't build userspace module
 %bcond_with	verbose		# verbose build (V=1)
-
 #
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
