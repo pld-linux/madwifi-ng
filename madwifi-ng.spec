@@ -17,7 +17,7 @@ Version:	0
 %define		snap_day	30
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.1
+%define		_rel	0.%{snap}.2
 %define		trunk	r1370
 Release:	%{_rel}
 Epoch:		0
@@ -143,7 +143,7 @@ for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}
 	mv ath_rate/sample/ath_rate_sample{,-$cfg}.ko
 #	mv ath_rate/onoe/ath_rate_onoe{,-$cfg}.ko
 
-	for i in wlan_wep wlan_xauth wlan_acl wlan_ccmp wlan_tkip wlan; do
+	for i in wlan_wep wlan_xauth wlan_acl wlan_ccmp wlan_tkip wlan wlan_scan_ap wlan_scan_sta; do
 		mv net80211/$i{,-$cfg}.ko
 	done
 done
@@ -187,7 +187,7 @@ install ath_rate/sample/ath_rate_sample-%{?with_dist_kernel:up}%{!?with_dist_ker
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/ath_rate_sample.ko
 #install ath_rate/onoe/ath_rate_onoe-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 #	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/ath_rate_onoe.ko
-for i in wlan_wep wlan_xauth wlan_acl wlan_ccmp wlan_tkip wlan; do
+for i in wlan_wep wlan_xauth wlan_acl wlan_ccmp wlan_tkip wlan wlan_scan_ap wlan_scan_sta; do
 	install net80211/$i-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 		$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/$i.ko
 done
@@ -200,7 +200,7 @@ install ath_rate/sample/ath_rate_sample-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/ath_rate_sample.ko
 #install ath_rate/onoe/ath_rate_onoe-smp.ko \
 #	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/ath_rate_onoe.ko
-for i in wlan_wep wlan_xauth wlan_acl wlan_ccmp wlan_tkip wlan; do
+for i in wlan_wep wlan_xauth wlan_acl wlan_ccmp wlan_tkip wlan wlan_scan_ap wlan_scan_sta; do
 	install net80211/$i-smp.ko \
 		$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/$i.ko
 done
