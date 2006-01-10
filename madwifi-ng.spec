@@ -47,8 +47,8 @@ oraz tryb WDS.
 Summary:	Header files for madwifi
 Summary(pl):	Pliki nag³ówkowe dla madwifi
 Group:		Development/Libraries
-Obsoletes:	madwifi-devel
 Provides:	madwifi-devel
+Obsoletes:	madwifi-devel
 
 %description devel
 Header files for madwifi.
