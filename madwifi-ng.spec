@@ -17,12 +17,14 @@ Version:	0
 %define		snap_day	30
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.2
+%define		_rel	0.%{snap}.3
 %define		trunk	r1370
 Release:	%{_rel}
 Epoch:		0
 License:	GPL/BSD (partial source)
 Group:		Base/Kernel
+Obsoletes:	madwifi
+Provides:	madwifi
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	3fe749bf48a7f1edffffd7be8e394b47
 URL:		http://www.madwifi.org/
@@ -45,6 +47,8 @@ oraz tryb WDS.
 Summary:	Header files for madwifi
 Summary(pl):	Pliki nag³ówkowe dla madwifi
 Group:		Development/Libraries
+Obsoletes:	madwifi-devel
+Provides:	madwifi-devel
 
 %description devel
 Header files for madwifi.
@@ -154,21 +158,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %if %{with userspace}
 install -d $RPM_BUILD_ROOT%{_bindir}
-install tools/80211debug $RPM_BUILD_ROOT%{_bindir}/80211debug
-install tools/80211stats $RPM_BUILD_ROOT%{_bindir}/80211stats
-install tools/athchans $RPM_BUILD_ROOT%{_bindir}/athchans
-install tools/athctrl $RPM_BUILD_ROOT%{_bindir}/athctrl
-install tools/athdebug $RPM_BUILD_ROOT%{_bindir}/athdebug
-install tools/athkey $RPM_BUILD_ROOT%{_bindir}/athkey
-install tools/athstats $RPM_BUILD_ROOT%{_bindir}/athstats
-install tools/wlanconfig $RPM_BUILD_ROOT%{_bindir}/wlanconfig
-#install tools/wlanstats $RPM_BUILD_ROOT%{_bindir}/wlanstats
-#install tools/wlandebug $RPM_BUILD_ROOT%{_bindir}/wlandebug
 
-echo r | %{__make} -C tools install \
+%{__make} install-tools \
 	KERNELCONF="%{_kernelsrcdir}/config-up" \
 	DESTDIR=$RPM_BUILD_ROOT \
-	BINDIR=%{_bindir}
+	BINDIR=%{_bindir} \
+	MANDIR=%{_mandir}
 
 install -d $RPM_BUILD_ROOT%{_includedir}/madwifi/net80211
 install -d $RPM_BUILD_ROOT%{_includedir}/madwifi/include/sys
@@ -225,10 +220,9 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with userspace}
 %files
 %defattr(644,root,root,755)
-%doc COPYRIGHT README
-%attr(755,root,root) %{_bindir}/80211*
-%attr(755,root,root) %{_bindir}/ath*
-%attr(755,root,root) %{_bindir}/wlan*
+%doc COPYRIGHT README docs/WEP-HOWTO.txt docs/users*
+%attr(755,root,root) %{_bindir}/*
+%{_mandir}/man8/*
 
 %files devel
 %defattr(644,root,root,755)
