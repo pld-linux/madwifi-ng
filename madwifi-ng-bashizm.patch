@@ -1,0 +1,11 @@
+--- madwifi-ng-r1491-20060404/scripts/get_arch_target.sh~	2006-03-28 10:46:27.000000000 +0200
++++ madwifi-ng-r1491-20060404/scripts/get_arch_target.sh	2006-04-05 13:27:39.000000000 +0200
+@@ -9,7 +9,7 @@
+ }
+ 
+ test -r "$1" || report "" ""
+-source "$1"
++. "$1"
+ 
+ test "$CONFIG_X86_64" && report x86_64
+ test "$CONFIG_X86" && report i386
