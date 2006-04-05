@@ -12,13 +12,13 @@ Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
 Version:	0
-%define		snap_year	2005
-%define		snap_month	12
-%define		snap_day	30
+%define		snap_year	2006
+%define		snap_month	04
+%define		snap_day	04
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.3
-%define		trunk	r1370
+%define		_rel	0.%{snap}.1
+%define		trunk	r1491
 Release:	%{_rel}
 Epoch:		0
 License:	GPL/BSD (partial source)
@@ -26,7 +26,8 @@ Group:		Base/Kernel
 Obsoletes:	madwifi
 Provides:	madwifi
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	3fe749bf48a7f1edffffd7be8e394b47
+# Source0-md5:	370791bb0e7d1c725df1e5874d79ecc3
+Patch0:		%{name}-bashizm.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
@@ -102,6 +103,7 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 
 %prep
 %setup -q -n madwifi-ng-%{trunk}-%{snap}
+%patch0 -p1
 
 %build
 %if %{with userspace}
@@ -117,27 +119,37 @@ for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}
 	if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
 		exit 1
 	fi
-	rm -rf include/{linux,config,asm}
-	install -d include/{linux,config}
-	ln -sf %{_kernelsrcdir}/config-$cfg .config
-	ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-	ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
-	ln -sf %{_kernelsrcdir}/Module.symvers-$cfg Module.symvers
-	touch include/config/MARKER
+	rm -rf o/
+	install -d o/include/linux
+	ln -sf %{_kernelsrcdir}/config-$cfg o/.config
+	ln -sf %{_kernelsrcdir}/Module.symvers-$cfg o/Module.symvers
+	ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h o/include/linux/autoconf.h
+%ifarch ppc ppc64
+        install -d include/asm
+        [ ! -d %{_kernelsrcdir}/include/asm-powerpc ] || ln -sf %{_kernelsrcdir}/include/asm-powerpc/* include/asm
+        [ ! -d %{_kernelsrcdir}/include/asm-%{_target_base_arch} ] || ln -snf %{_kernelsrcdir}/include/asm-%{_target_base_arch}/* include/asm
+%else
+        ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} o/include/asm
+%endif
+
 #
 #	patching/creating makefile(s) (optional)
 #
+	%{__make} -C %{_kernelsrcdir} O=$PWD/o prepare scripts
+	ln -sf ../Makefile.inc o/Makefile.inc
 	%{__make} -C %{_kernelsrcdir} clean \
+		TARGET="%{_target_base_arch}-elf" \
 		KERNELCONF="%{_kernelsrcdir}/config-$cfg" \
 		RCS_FIND_IGNORE="-name '*.ko' -o" \
-		M=$PWD O=$PWD \
+		M=$PWD O=$PWD/o \
+		KERNELPATH="%{_kernelsrcdir}" \
 		%{?with_verbose:V=1}
 	%{__make} \
 		TARGET="%{_target_base_arch}-elf" \
-		KERNELPATH=%{_kernelsrcdir} \
+		KERNELPATH="%{_kernelsrcdir}" \
 		KERNELCONF="%{_kernelsrcdir}/config-$cfg" \
 		TOOLPREFIX= \
-		O=$PWD \
+		O=$PWD/o \
 		CC="%{__cc}" CPP="%{__cpp}" \
 		%{?with_verbose:V=1}
 
@@ -161,6 +173,7 @@ install -d $RPM_BUILD_ROOT%{_bindir}
 
 %{__make} install-tools \
 	KERNELCONF="%{_kernelsrcdir}/config-up" \
+	KERNELPATH="%{_kernelsrcdir}" \
 	DESTDIR=$RPM_BUILD_ROOT \
 	BINDIR=%{_bindir} \
 	MANDIR=%{_mandir}
