@@ -8,10 +8,6 @@
 %bcond_without	userspace	# don't build userspace module
 %bcond_with	verbose		# verbose build (V=1)
 #
-Summary:	Atheros WiFi card driver
-Summary(pl):	Sterownik karty radiowej Atheros
-Name:		madwifi-ng
-Version:	0
 %define		snap_year	2006
 %define		snap_month	04
 %define		snap_day	04
@@ -19,18 +15,22 @@ Version:	0
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		_rel	0.%{snap}.1
 %define		trunk	r1491
+Summary:	Atheros WiFi card driver
+Summary(pl):	Sterownik karty radiowej Atheros
+Name:		madwifi-ng
+Version:	0
 Release:	%{_rel}
 Epoch:		0
 License:	GPL/BSD (partial source)
 Group:		Base/Kernel
-Obsoletes:	madwifi
 Provides:	madwifi
+Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	370791bb0e7d1c725df1e5874d79ecc3
 Patch0:		%{name}-bashizm.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
-%{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
+%{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.7}
 BuildRequires:	rpmbuild(macros) >= 1.153
 BuildRequires:	sharutils
 %endif
@@ -41,8 +41,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Atheros WiFi card driver. Support Virtual APs and WDS Mode.
 
 %description -l pl
-Sterownik karty radiowej Atheros. Wspiera tryb wirtualnego AP
-oraz tryb WDS.
+Sterownik karty radiowej Atheros. Wspiera tryb wirtualnego AP oraz
+tryb WDS.
 
 %package devel
 Summary:	Header files for madwifi
@@ -102,7 +102,7 @@ Sterownik dla Linuksa do kart Atheros.
 Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 
 %prep
-%setup -q -n madwifi-ng-%{trunk}-%{snap}
+%setup -q -n %{name}-%{trunk}-%{snap}
 %patch0 -p1
 
 %build
@@ -125,11 +125,11 @@ for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}
 	ln -sf %{_kernelsrcdir}/Module.symvers-$cfg o/Module.symvers
 	ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h o/include/linux/autoconf.h
 %ifarch ppc ppc64
-        install -d include/asm
-        [ ! -d %{_kernelsrcdir}/include/asm-powerpc ] || ln -sf %{_kernelsrcdir}/include/asm-powerpc/* include/asm
-        [ ! -d %{_kernelsrcdir}/include/asm-%{_target_base_arch} ] || ln -snf %{_kernelsrcdir}/include/asm-%{_target_base_arch}/* include/asm
+	install -d include/asm
+	[ ! -d %{_kernelsrcdir}/include/asm-powerpc ] || ln -sf %{_kernelsrcdir}/include/asm-powerpc/* include/asm
+	[ ! -d %{_kernelsrcdir}/include/asm-%{_target_base_arch} ] || ln -snf %{_kernelsrcdir}/include/asm-%{_target_base_arch}/* include/asm
 %else
-        ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} o/include/asm
+	ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} o/include/asm
 %endif
 
 #
