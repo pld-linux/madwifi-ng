@@ -9,12 +9,12 @@
 %bcond_with	verbose		# verbose build (V=1)
 #
 %define		snap_year	2006
-%define		snap_month	04
-%define		snap_day	04
+%define		snap_month	05
+%define		snap_day	28
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		_rel	0.%{snap}.1
-%define		trunk	r1491
+%define		trunk	r1611
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
@@ -26,8 +26,8 @@ Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	370791bb0e7d1c725df1e5874d79ecc3
-Patch0:		%{name}-bashizm.patch
+# Source0-md5:	41e3c103a61e2cc3009ef3f3c6d4c94d
+#Patch0:		%{name}-bashizm.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.7}
@@ -103,7 +103,7 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 
 %prep
 %setup -q -n %{name}-%{trunk}-%{snap}
-%patch0 -p1
+#%patch0 -p1
 
 %build
 %if %{with userspace}
@@ -154,7 +154,7 @@ for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}
 		%{?with_verbose:V=1}
 
 	mv ath/ath_pci{,-$cfg}.ko
-	mv ath_hal/ath_hal{,-$cfg}.ko
+	mv ath/ath_hal{,-$cfg}.ko
 # default is ath_rate_sample now compiles, _onoe does not
 	mv ath_rate/sample/ath_rate_sample{,-$cfg}.ko
 #	mv ath_rate/onoe/ath_rate_onoe{,-$cfg}.ko
@@ -189,7 +189,7 @@ install include/sys/*.h $RPM_BUILD_ROOT%{_includedir}/madwifi/include/sys
 install -d $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/kernel/net
 install ath/ath_pci-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/ath_pci.ko
-install ath_hal/ath_hal-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
+install ath/ath_hal-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/ath_hal.ko
 install ath_rate/sample/ath_rate_sample-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/ath_rate_sample.ko
@@ -202,7 +202,7 @@ done
 %if %{with smp} && %{with dist_kernel}
 install ath/ath_pci-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/ath_pci.ko
-install ath_hal/ath_hal-smp.ko \
+install ath/ath_hal-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/ath_hal.ko
 install ath_rate/sample/ath_rate_sample-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/ath_rate_sample.ko
