@@ -13,7 +13,7 @@
 %define		snap_day	28
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.1
+%define		_rel	0.%{snap}.2
 %define		trunk	r1611
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
@@ -27,7 +27,7 @@ Provides:	madwifi
 Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	41e3c103a61e2cc3009ef3f3c6d4c94d
-#Patch0:		%{name}-bashizm.patch
+Patch0:		http://patches.aircrack-ng.org/madwifi-ng-r1545.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.7}
@@ -103,7 +103,7 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 
 %prep
 %setup -q -n %{name}-%{trunk}-%{snap}
-#%patch0 -p1
+%patch0 -p1
 
 %build
 %if %{with userspace}
