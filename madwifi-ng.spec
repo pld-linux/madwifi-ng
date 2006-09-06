@@ -136,7 +136,7 @@ for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}
 #
 #	patching/creating makefile(s) (optional)
 #
-	%{__make} -C %{_kernelsrcdir} O=$PWD/o prepare scripts
+	%{__make} -j1 -C %{_kernelsrcdir} O=$PWD/o prepare scripts
 	ln -sf ../Makefile.inc o/Makefile.inc
 	%{__make} -C %{_kernelsrcdir} clean \
 		TARGET="%{_target_base_arch}-elf" \
