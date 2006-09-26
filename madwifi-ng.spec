@@ -29,6 +29,7 @@ Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	65005f0c07520db6e0011309a4625cbb
 # http://patches.aircrack-ng.org/madwifi-ng-r1679.patch
 Patch0:		%{name}-r1679.patch
+Patch1:		%{name}-gcc4.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.7}
@@ -105,6 +106,7 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 %prep
 %setup -q -n %{name}-%{trunk}-%{snap}
 %patch0 -p1
+%patch1 -p1
 
 %build
 %if %{with userspace}
