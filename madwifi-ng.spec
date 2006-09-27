@@ -13,14 +13,13 @@
 %define		snap_day	15
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.1
+%define		_rel	0.%{snap}.2
 %define		trunk	r1686
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
 Version:	0
 Release:	%{_rel}
-Epoch:		0
 License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
@@ -36,7 +35,7 @@ URL:		http://www.madwifi.org/
 BuildRequires:	rpmbuild(macros) >= 1.153
 BuildRequires:	sharutils
 %endif
-ExclusiveArch:	%{x8664} arm %{ix86} mips ppc xscale
+ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64 xscale
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -118,6 +117,17 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 
 %if %{with kernel}
 # kernel module(s)
+
+%ifarch alpha %{ix86} %{x8664}
+target=%{_target_base_arch}-elf
+%endif
+%ifarch sparc sparcv9 sparc64
+target=%{_target_base_arch}-be-elf
+%endif
+%ifarch powerpc ppc
+target=powerpc-be-elf
+%endif
+
 for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
 	if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
 		exit 1
@@ -135,20 +145,17 @@ for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}
 	ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} o/include/asm
 %endif
 
-#
-#	patching/creating makefile(s) (optional)
-#
 	%{__make} -j1 -C %{_kernelsrcdir} O=$PWD/o prepare scripts
 	ln -sf ../Makefile.inc o/Makefile.inc
 	%{__make} -C %{_kernelsrcdir} clean \
-		TARGET="%{_target_base_arch}-elf" \
+		TARGET=$target \
 		KERNELCONF="%{_kernelsrcdir}/config-$cfg" \
 		RCS_FIND_IGNORE="-name '*.ko' -o" \
 		M=$PWD O=$PWD/o \
 		KERNELPATH="%{_kernelsrcdir}" \
 		%{?with_verbose:V=1}
 	%{__make} \
-		TARGET="%{_target_base_arch}-elf" \
+		TARGET=$target \
 		KERNELPATH="%{_kernelsrcdir}" \
 		KERNELCONF="%{_kernelsrcdir}/config-$cfg" \
 		TOOLPREFIX= \
