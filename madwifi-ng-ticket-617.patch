@@ -1,0 +1,11 @@
+--- madwifi-ng-r1757-20061020/net80211/ieee80211.h~	2006-10-18 13:41:05.000000000 +0200
++++ madwifi-ng-r1757-20061020/net80211/ieee80211.h	2006-10-21 02:14:24.000000000 +0200
+@@ -174,7 +174,7 @@ struct ieee80211_ctlframe_addr2 {
+ #define	IEEE80211_SEQ_SEQ_MASK			0xfff0
+ #define	IEEE80211_SEQ_SEQ_SHIFT			4
+ 
+-#define	IEEE80211_SEQ_LEQ(a,b)	((int)((a)-(b)) <= 0)
++#define	IEEE80211_SEQ_LEQ(a,b)	((int)((a)-(b)) == 0)
+ 
+ #define	IEEE80211_NWID_LEN			32
+ 
