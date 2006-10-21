@@ -13,7 +13,7 @@
 %define		snap_day	20
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.3
+%define		_rel	0.%{snap}.4
 %define		trunk	r1757
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
@@ -24,7 +24,7 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r1747-20060929.tar.gz
+# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r1757-20061020.tar.gz
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	862f8e61cf9d3f4b429ac9ffca21f8e1
 # http://patches.aircrack-ng.org/madwifi-ng-r1730.patch
@@ -32,7 +32,12 @@ Patch0:		%{name}-r1730.patch
 Patch1:		%{name}-gcc4.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{name}-ticket-617.patch
-Patch3:		%{name}-ticket-617-rxbuf.patch
+# http://madwifi.org/ticket/967
+Patch3:		%{name}-011-suppress_plaintext.patch
+# http://madwifi.org/ticket/963
+Patch4:		%{name}-009-csa_ie_handling_fix.patch
+# http://madwifi.org/ticket/858
+Patch5:		%{name}-010-true_radiotap_parser.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.7}
@@ -112,6 +117,8 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 %if %{with userspace}
