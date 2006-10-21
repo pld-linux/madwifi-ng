@@ -1,0 +1,27 @@
+--- madwifi-ng-r1757-20061020/net80211/ieee80211_wireless.c	2006-07-06 05:23:08.000000000 +0200
++++ madwifi-ng-r1757-20061020/net80211/ieee80211_wireless.c	2006-10-10 18:11:45.369999000 +0200
+@@ -5043,7 +5051,9 @@
+ 		return -EPERM;
+ 	if (copy_from_user(&cp, ifr->ifr_data, sizeof(cp)))
+ 		return -EFAULT;
+-
++	if (access_ok(VERIFY_WRITE, ifr->ifr_name, IFNAMSIZ))
++		return -EFAULT;
++	  
+ 	unit = ieee80211_new_wlanunit();
+ 	if (unit == -1)
+ 		return -EIO;		/* XXX */
+@@ -5054,8 +5064,11 @@
+ 		ieee80211_delete_wlanunit(unit);
+ 		return -EIO;
+ 	}
+-	/* return final device name */
+-	strncpy(ifr->ifr_name, vap->iv_dev->name, IFNAMSIZ);
++
++	/* return final device name - should not fail, we have already
++	   checked above if we can access this. */
++	if (__copy_to_user(ifr->ifr_name, vap->iv_dev->name, IFNAMSIZ))
++	        return -EFAULT;
+ 	return 0;
+ }
+ EXPORT_SYMBOL(ieee80211_ioctl_create_vap);
