@@ -10,11 +10,11 @@
 #
 %define		snap_year	2006
 %define		snap_month	10
-%define		snap_day	24
+%define		snap_day	27
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		_rel	0.%{snap}.1
-%define		trunk	r1763
+%define		trunk	r1784
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
@@ -26,7 +26,7 @@ Provides:	madwifi
 Obsoletes:	madwifi
 # http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r1763-20061024.tar.gz
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	9e52fa1e896bc7c7fddeb642b4d4d30e
+# Source0-md5:	b61ff13701e65e50c608059160a3ea5a
 # http://patches.aircrack-ng.org/madwifi-ng-r1756.patch
 Patch0:		%{name}-r1756.patch
 Patch1:		%{name}-gcc4.patch
@@ -65,7 +65,7 @@ Pliki nag³ówkowe dla madwifi.
 
 # kernel subpackages.
 
-%package -n kernel-net-madwifi
+%package -n kernel-net-madwifi-ng
 Summary:	Linux driver for Atheros cards
 Summary(pl):	Sterownik dla Linuksa do kart Atheros
 Release:	%{_rel}@%{_kernel_ver_str}
@@ -76,17 +76,17 @@ Requires(post,postun):	/sbin/depmod
 Requires(postun):	%releq_kernel_up
 %endif
 
-%description -n kernel-net-madwifi
+%description -n kernel-net-madwifi-ng
 This is driver for Atheros card for Linux.
 
 This package contains Linux module.
 
-%description -n kernel-net-madwifi -l pl
+%description -n kernel-net-madwifi-ng -l pl
 Sterownik dla Linuksa do kart Atheros.
 
 Ten pakiet zawiera modu³ j±dra Linuksa.
 
-%package -n kernel-smp-net-madwifi
+%package -n kernel-smp-net-madwifi-ng
 Summary:	Linux SMP driver for %{name} cards
 Summary(pl):	Sterownik dla Linuksa SMP do kart %{name}
 Release:	%{_rel}@%{_kernel_ver_str}
@@ -97,12 +97,12 @@ Requires(post,postun):	/sbin/depmod
 Requires(postun):	%releq_kernel_smp
 %endif
 
-%description -n kernel-smp-net-madwifi
+%description -n kernel-smp-net-madwifi-ng
 This is driver for Atheros cards for Linux.
 
 This package contains Linux SMP module.
 
-%description -n kernel-smp-net-madwifi -l pl
+%description -n kernel-smp-net-madwifi-ng -l pl
 Sterownik dla Linuksa do kart Atheros.
 
 Ten pakiet zawiera modu³ j±dra Linuksa SMP.
@@ -235,16 +235,16 @@ done
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post	-n kernel-net-madwifi
+%post	-n kernel-net-madwifi-ng
 %depmod %{_kernel_ver}
 
-%postun	-n kernel-net-madwifi
+%postun	-n kernel-net-madwifi-ng
 %depmod %{_kernel_ver}
 
-%post	-n kernel-smp-net-madwifi
+%post	-n kernel-smp-net-madwifi-ng
 %depmod %{_kernel_ver}smp
 
-%postun	-n kernel-smp-net-madwifi
+%postun	-n kernel-smp-net-madwifi-ng
 %depmod %{_kernel_ver}smp
 
 %if %{with userspace}
@@ -260,12 +260,12 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %if %{with kernel}
-%files -n kernel-net-madwifi
+%files -n kernel-net-madwifi-ng
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/kernel/net/*.ko*
 
 %if %{with smp} && %{with dist_kernel}
-%files -n kernel-smp-net-madwifi
+%files -n kernel-smp-net-madwifi-ng
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}smp/kernel/net/*.ko*
 %endif
