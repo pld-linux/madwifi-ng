@@ -36,8 +36,8 @@ Patch2:		%{name}-ticket-617.patch
 Patch3:		%{name}-ieee80211_wireless.c.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
-%{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.7}
-BuildRequires:	rpmbuild(macros) >= 1.153
+%{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
+BuildRequires:	rpmbuild(macros) >= 1.308
 BuildRequires:	sharutils
 %endif
 ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64 xscale
@@ -65,7 +65,7 @@ Pliki nag³ówkowe dla madwifi.
 
 # kernel subpackages.
 
-%package -n kernel-net-madwifi-ng
+%package -n kernel%{_alt_kernel}-net-madwifi-ng
 Summary:	Linux driver for Atheros cards
 Summary(pl):	Sterownik dla Linuksa do kart Atheros
 Release:	%{_rel}@%{_kernel_ver_str}
@@ -76,17 +76,17 @@ Requires(post,postun):	/sbin/depmod
 Requires(postun):	%releq_kernel_up
 %endif
 
-%description -n kernel-net-madwifi-ng
+%description -n kernel%{_alt_kernel}-net-madwifi-ng
 This is driver for Atheros card for Linux.
 
 This package contains Linux module.
 
-%description -n kernel-net-madwifi-ng -l pl
+%description -n kernel%{_alt_kernel}-net-madwifi-ng -l pl
 Sterownik dla Linuksa do kart Atheros.
 
 Ten pakiet zawiera modu³ j±dra Linuksa.
 
-%package -n kernel-smp-net-madwifi-ng
+%package -n kernel%{_alt_kernel}-smp-net-madwifi-ng
 Summary:	Linux SMP driver for %{name} cards
 Summary(pl):	Sterownik dla Linuksa SMP do kart %{name}
 Release:	%{_rel}@%{_kernel_ver_str}
@@ -97,12 +97,12 @@ Requires(post,postun):	/sbin/depmod
 Requires(postun):	%releq_kernel_smp
 %endif
 
-%description -n kernel-smp-net-madwifi-ng
+%description -n kernel%{_alt_kernel}-smp-net-madwifi-ng
 This is driver for Atheros cards for Linux.
 
 This package contains Linux SMP module.
 
-%description -n kernel-smp-net-madwifi-ng -l pl
+%description -n kernel%{_alt_kernel}-smp-net-madwifi-ng -l pl
 Sterownik dla Linuksa do kart Atheros.
 
 Ten pakiet zawiera modu³ j±dra Linuksa SMP.
@@ -235,16 +235,16 @@ done
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post	-n kernel-net-madwifi-ng
+%post	-n kernel%{_alt_kernel}-net-madwifi-ng
 %depmod %{_kernel_ver}
 
-%postun	-n kernel-net-madwifi-ng
+%postun	-n kernel%{_alt_kernel}-net-madwifi-ng
 %depmod %{_kernel_ver}
 
-%post	-n kernel-smp-net-madwifi-ng
+%post	-n kernel%{_alt_kernel}-smp-net-madwifi-ng
 %depmod %{_kernel_ver}smp
 
-%postun	-n kernel-smp-net-madwifi-ng
+%postun	-n kernel%{_alt_kernel}-smp-net-madwifi-ng
 %depmod %{_kernel_ver}smp
 
 %if %{with userspace}
@@ -260,12 +260,12 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %if %{with kernel}
-%files -n kernel-net-madwifi-ng
+%files -n kernel%{_alt_kernel}-net-madwifi-ng
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/kernel/net/*.ko*
 
 %if %{with smp} && %{with dist_kernel}
-%files -n kernel-smp-net-madwifi-ng
+%files -n kernel%{_alt_kernel}-smp-net-madwifi-ng
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}smp/kernel/net/*.ko*
 %endif
