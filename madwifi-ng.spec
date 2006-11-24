@@ -126,60 +126,28 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 # kernel module(s)
 
 %ifarch alpha %{ix86} %{x8664}
-target=%{_target_base_arch}-elf
+%define target %{_target_base_arch}-elf
 %endif
 %ifarch sparc sparcv9 sparc64
-target=%{_target_base_arch}-be-elf
+%define target %{_target_base_arch}-be-elf
 %endif
 %ifarch powerpc ppc
-target=powerpc-be-elf
+%define target powerpc-be-elf
 %endif
 
-for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
-	if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
-		exit 1
-	fi
-	rm -rf o/
-	install -d o/include/linux
-	ln -sf %{_kernelsrcdir}/config-$cfg o/.config
-	ln -sf %{_kernelsrcdir}/Module.symvers-$cfg o/Module.symvers
-	ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h o/include/linux/autoconf.h
-%ifarch ppc ppc64
-	install -d include/asm
-	[ ! -d %{_kernelsrcdir}/include/asm-powerpc ] || ln -sf %{_kernelsrcdir}/include/asm-powerpc/* include/asm
-	[ ! -d %{_kernelsrcdir}/include/asm-%{_target_base_arch} ] || ln -snf %{_kernelsrcdir}/include/asm-%{_target_base_arch}/* include/asm
-%else
-	ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} o/include/asm
-%endif
-
-	%{__make} -j1 -C %{_kernelsrcdir} O=$PWD/o prepare scripts
-	ln -sf ../Makefile.inc o/Makefile.inc
-	%{__make} -C %{_kernelsrcdir} clean \
-		TARGET=$target \
-		KERNELCONF="%{_kernelsrcdir}/config-$cfg" \
-		RCS_FIND_IGNORE="-name '*.ko' -o" \
-		M=$PWD O=$PWD/o \
-		KERNELPATH="%{_kernelsrcdir}" \
-		%{?with_verbose:V=1}
-	%{__make} \
-		TARGET=$target \
-		KERNELPATH="%{_kernelsrcdir}" \
-		KERNELCONF="%{_kernelsrcdir}/config-$cfg" \
-		TOOLPREFIX= \
-		O=$PWD/o \
-		CC="%{__cc}" CPP="%{__cpp}" \
-		%{?with_verbose:V=1}
-
-	mv ath/ath_pci{,-$cfg}.ko
-	mv ath_hal/ath_hal{,-$cfg}.ko
 # default is ath_rate_sample now compiles, _onoe does not
-	mv ath_rate/sample/ath_rate_sample{,-$cfg}.ko
-#	mv ath_rate/onoe/ath_rate_onoe{,-$cfg}.ko
+%define modules_ath ath/ath_pci,ath_hal/ath_hal,ath_rate/sample/ath_rate_sample
+%define modules_wlan net80211/wlan,net80211/wlan_{wep,xauth,acl,ccmp,tkip,scan_{ap,sta}}
+%define modules %{modules_ath},%{modules_wlan}
 
-	for i in wlan_wep wlan_xauth wlan_acl wlan_ccmp wlan_tkip wlan wlan_scan_ap wlan_scan_sta; do
-		mv net80211/$i{,-$cfg}.ko
-	done
-done
+%define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" KERNELCONF="$PWD/o/.config" TOOLPREFIX=
+
+make svnversion.h
+%build_kernel_modules -c -m %{modules} %{opts} <<'EOF'
+find -name "*.o" | xargs -r rm
+ln -sf ../Makefile.inc o/Makefile.inc
+EOF
+
 %endif
 
 %install
@@ -189,6 +157,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_bindir}
 
 %{__make} install-tools \
+	TARGET=%{target} \
 	KERNELCONF="%{_kernelsrcdir}/config-up" \
 	KERNELPATH="%{_kernelsrcdir}" \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -203,33 +172,7 @@ install include/sys/*.h $RPM_BUILD_ROOT%{_includedir}/madwifi/include/sys
 %endif
 
 %if %{with kernel}
-install -d $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/kernel/net
-install ath/ath_pci-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/ath_pci.ko
-install ath_hal/ath_hal-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/ath_hal.ko
-install ath_rate/sample/ath_rate_sample-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/ath_rate_sample.ko
-#install ath_rate/onoe/ath_rate_onoe-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
-#	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/ath_rate_onoe.ko
-for i in wlan_wep wlan_xauth wlan_acl wlan_ccmp wlan_tkip wlan wlan_scan_ap wlan_scan_sta; do
-	install net80211/$i-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
-		$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/kernel/net/$i.ko
-done
-%if %{with smp} && %{with dist_kernel}
-install ath/ath_pci-smp.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/ath_pci.ko
-install ath_hal/ath_hal-smp.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/ath_hal.ko
-install ath_rate/sample/ath_rate_sample-smp.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/ath_rate_sample.ko
-#install ath_rate/onoe/ath_rate_onoe-smp.ko \
-#	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/ath_rate_onoe.ko
-for i in wlan_wep wlan_xauth wlan_acl wlan_ccmp wlan_tkip wlan wlan_scan_ap wlan_scan_sta; do
-	install net80211/$i-smp.ko \
-		$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/kernel/net/$i.ko
-done
-%endif
+%install_kernel_modules -m %{modules} -d kernel/net
 %endif
 
 %clean
