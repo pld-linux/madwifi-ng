@@ -9,12 +9,12 @@
 %bcond_with	verbose		# verbose build (V=1)
 #
 %define		snap_year	2006
-%define		snap_month	10
-%define		snap_day	27
+%define		snap_month	12
+%define		snap_day	08
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		_rel	0.%{snap}.1
-%define		trunk	r1784
+%define		trunk	r1844
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
@@ -24,11 +24,11 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r1763-20061024.tar.gz
+# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r1844-20061208.tar.gz
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	b61ff13701e65e50c608059160a3ea5a
-# http://patches.aircrack-ng.org/madwifi-ng-r1756.patch
-Patch0:		%{name}-r1756.patch
+# Source0-md5:	9ab58ff1c9b3803f76b064eba3555679
+# http://patches.aircrack-ng.org/madwifi-ng-r1816.patch
+Patch0:		%{name}-r1816.patch
 Patch1:		%{name}-gcc4.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{name}-ticket-617.patch
@@ -37,7 +37,7 @@ Patch3:		%{name}-ieee80211_wireless.c.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
-BuildRequires:	rpmbuild(macros) >= 1.308
+BuildRequires:	rpmbuild(macros) >= 1.333
 BuildRequires:	sharutils
 %endif
 ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64 xscale
