@@ -1,11 +1,43 @@
-The attached patch fix the compilation problem caused by the workqueue
-interface changes in the recent kernels (2.6.20).
-
-Signed-off-by: Shahar Frank <shaharf@qumranet.com>
-
+Index: ath/if_athvar.h
+===================================================================
+--- ath/if_athvar.h	(revision 1888)
++++ ath/if_athvar.h	(working copy)
+@@ -80,14 +80,26 @@
+ 	(t)->data=(void *) (d); 		\
+ } while (0)
+ #define ATH_FLUSH_TASKS			flush_scheduled_tasks
++#define ATH_WORK_ARG			TQUEUE_ARG
+ #else
+ #include <linux/workqueue.h>
+-#define ATH_SCHEDULE_TASK(t)		schedule_work((t))
+-
+-#define ATH_INIT_SCHED_TASK(_t, _f, _d)	INIT_WORK((_t), (void (*)(void *))(_f), (void *)(_d));
+-
+-#define ATH_WORK_THREAD			work_struct
+-#define	ATH_FLUSH_TASKS			flush_scheduled_work
++struct ath_work_struct {
++	struct work_struct worker;
++	void *data;
++}; 
++#define ATH_WORK_THREAD			ath_work_struct
++#define ATH_WORK_ARG			struct work_struct *
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,20)
++#define ATH_INIT_WORK(_t, _f) INIT_WORK((_t), (void (*)(void *))(_f), NULL)
++#else
++#define ATH_INIT_WORK(_t, _f) INIT_WORK((_t), (void (*)(ATH_WORK_ARG))(_f))
++#endif
++#define ATH_INIT_SCHED_TASK(_t, _f, _d)	do {\
++		ATH_INIT_WORK(&(_t)->worker, (_f));\
++		(_t)->data = _d;\
++	} while (0);
++#define ATH_SCHEDULE_TASK(t)		schedule_work(&(t)->worker)
++#define ATH_FLUSH_TASKS			flush_scheduled_work
+ #endif /* KERNEL_VERSION < 2.5.41 */
+ 
+ /*
 Index: ath/if_ath.c
 ===================================================================
---- ath/if_ath.c	(revision 1871)
+--- ath/if_ath.c	(revision 1888)
 +++ ath/if_ath.c	(working copy)
 @@ -118,7 +118,7 @@
  static void ath_rxorn_tasklet(TQUEUE_ARG);
@@ -16,7 +48,7 @@ Index: ath/if_ath.c
  static void ath_dfs_test_return(unsigned long);
  
  static int ath_stop_locked(struct net_device *);
-@@ -1737,9 +1737,10 @@
+@@ -1739,9 +1739,10 @@
  }
  
  static void
@@ -29,41 +61,3 @@ Index: ath/if_ath.c
  	struct ath_softc *sc = dev->priv;
  	struct ath_hal *ah = sc->sc_ah;
  	struct ieee80211com *ic = &sc->sc_ic;
-Index: ath/if_athvar.h
-===================================================================
---- ath/if_athvar.h	(revision 1871)
-+++ ath/if_athvar.h	(working copy)
-@@ -80,14 +80,31 @@
- 	(t)->data=(void *) (d); 		\
- } while (0)
- #define ATH_FLUSH_TASKS			flush_scheduled_tasks
--#else
-+#define ATH_WORK_ARG			TQUEUE_ARG
-+#elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,20)
- #include <linux/workqueue.h>
- #define ATH_SCHEDULE_TASK(t)		schedule_work((t))
- 
- #define ATH_INIT_SCHED_TASK(_t, _f, _d)	INIT_WORK((_t), (void (*)(void *))(_f), (void *)(_d));
- 
- #define ATH_WORK_THREAD			work_struct
--#define	ATH_FLUSH_TASKS			flush_scheduled_work
-+#define ATH_FLUSH_TASKS			flush_scheduled_work
-+#define ATH_WORK_ARG			TQUEUE_ARG
-+#else
-+#include <linux/workqueue.h>
-+struct ath_work_struct {
-+	struct work_struct worker;
-+	void *data;
-+}; 
-+#define ATH_WORK_THREAD			ath_work_struct
-+#define ATH_WORK_ARG			struct work_struct *
-+#define ATH_INIT_SCHED_TASK(_t, _f, _d)	do {\
-+		INIT_WORK(&(_t)->worker, (void (*)(ATH_WORK_ARG))(_f));\
-+		(_t)->data = dev;\
-+	} while (0);\
-+		
-+#define ATH_FLUSH_TASKS			flush_scheduled_work
-+#define ATH_SCHEDULE_TASK(t)		schedule_work(&(t)->worker)
- #endif /* KERNEL_VERSION < 2.5.41 */
- 
- /*
