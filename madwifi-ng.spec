@@ -36,6 +36,7 @@ Patch2:		%{name}-ticket-617.patch
 Patch3:		%{name}-ieee80211_wireless.c.patch
 # Werror hack
 Patch4:		%{name}-makefile-werror.patch
+Patch5:		%{name}-2.6.20.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
@@ -121,6 +122,7 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 %patch3 -p1
 
 %patch4 -p1
+%patch5 -p0
 
 %build
 %if %{with userspace}
