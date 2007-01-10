@@ -13,7 +13,7 @@
 %define		snap_day	15
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.2
+%define		_rel	0.%{snap}.3
 %define		trunk	r1860
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
