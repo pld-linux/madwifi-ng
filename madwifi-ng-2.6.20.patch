@@ -1,7 +1,20 @@
+Index: ath_hal/ah_osdep.h
+===================================================================
+--- ath_hal/ah_osdep.h	(Revision 1888)
++++ ath_hal/ah_osdep.h	(Arbeitskopie)
+@@ -45,7 +45,7 @@
+  * on the stack as this is the convention used internally (for
+  * maximum portability).
+  */
+-#ifdef CONFIG_REGPARM
++#if defined (CONFIG_REGPARM) || (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,20))
+ #define	__ahdecl	__attribute__((regparm(0)))
+ #else
+ #define	__ahdecl
 Index: ath/if_athvar.h
 ===================================================================
---- ath/if_athvar.h	(revision 1888)
-+++ ath/if_athvar.h	(working copy)
+--- ath/if_athvar.h	(Revision 1888)
++++ ath/if_athvar.h	(Arbeitskopie)
 @@ -80,14 +80,26 @@
  	(t)->data=(void *) (d); 		\
  } while (0)
@@ -37,8 +50,8 @@ Index: ath/if_athvar.h
  /*
 Index: ath/if_ath.c
 ===================================================================
---- ath/if_ath.c	(revision 1888)
-+++ ath/if_ath.c	(working copy)
+--- ath/if_ath.c	(Revision 1888)
++++ ath/if_ath.c	(Arbeitskopie)
 @@ -118,7 +118,7 @@
  static void ath_rxorn_tasklet(TQUEUE_ARG);
  static void ath_bmiss_tasklet(TQUEUE_ARG);
