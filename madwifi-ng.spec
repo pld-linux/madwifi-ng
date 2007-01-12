@@ -8,13 +8,13 @@
 %bcond_without	userspace	# don't build userspace module
 %bcond_with	verbose		# verbose build (V=1)
 #
-%define		snap_year	2006
-%define		snap_month	12
-%define		snap_day	15
+%define		snap_year	2007
+%define		snap_month	01
+%define		snap_day	12
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.3
-%define		trunk	r1860
+%define		_rel	0.%{snap}.1
+%define		trunk	r1931
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
@@ -24,11 +24,11 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r1850-20061209.tar.gz
+# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r1931-20070112.tar.gz
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	5971699e941cbbb527a8240bbe44d4d4
-# http://patches.aircrack-ng.org/madwifi-ng-r1816.patch
-Patch0:		%{name}-r1816.patch
+# Source0-md5:	b6e3313b9ac962e14c6b06c152a11801
+# http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
+Patch0:		%{name}-r1886.patch
 Patch1:		%{name}-gcc4.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{name}-ticket-617.patch
@@ -36,7 +36,6 @@ Patch2:		%{name}-ticket-617.patch
 Patch3:		%{name}-ieee80211_wireless.c.patch
 # Werror hack
 Patch4:		%{name}-makefile-werror.patch
-Patch5:		%{name}-2.6.20.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
@@ -47,7 +46,7 @@ ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Atheros WiFi card driver. Support Virtual APs and WDS Mode.
+Atheros WiFi card driver. Support Virtual APs and WDS Mode. 
 
 %description -l pl
 Sterownik karty radiowej Atheros. Wspiera tryb wirtualnego AP oraz
@@ -122,7 +121,6 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 %patch3 -p1
 
 %patch4 -p1
-%patch5 -p0
 
 %build
 %if %{with userspace}
