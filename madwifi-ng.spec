@@ -46,7 +46,7 @@ ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Atheros WiFi card driver. Support Virtual APs and WDS Mode.
+Atheros WiFi card driver. Supports Virtual APs and WDS Mode.
 
 %description -l pl
 Sterownik karty radiowej Atheros. Wspiera tryb wirtualnego AP oraz
