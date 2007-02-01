@@ -46,11 +46,14 @@ ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Atheros WiFi card driver. Supports Virtual APs and WDS Mode.
+Atheros WiFi card driver. Supports Virtual APs and WDS Mode. It uses binary 
+HAL and supports AR5210, AR5211, AR5212, RF5111, RF5112, RF2413 and RF5413 
+cards.
 
 %description -l pl
 Sterownik karty radiowej Atheros. Wspiera tryb wirtualnego AP oraz
-tryb WDS.
+tryb WDS. U¿ywa binarnej wersji HAL i obs³uguje karty z uk³adami AR5210, 
+AR5211, AR5212, RF5111, RF5112, RF2413 i RF5413.
 
 %package devel
 Summary:	Header files for madwifi
