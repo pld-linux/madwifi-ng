@@ -10,11 +10,11 @@
 #
 %define		snap_year	2007
 %define		snap_month	02
-%define		snap_day	03
+%define		snap_day	07
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		_rel	0.%{snap}.1
-%define		trunk	r2069
+%define		trunk	r2085
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
@@ -24,16 +24,14 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2069-20070203.tar.gz
+# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2085-20070207.tar.gz
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	1f050a6a89790c5feb15f34873c88de1
+# Source0-md5:	576b9a63d60061d33d301f14de9d1586
 # http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
 Patch0:		%{name}-r1886.patch
 Patch1:		%{name}-gcc4.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{name}-ticket-617.patch
-# http://madwifi.org/ticket/946
-Patch3:		%{name}-ieee80211_wireless.c.patch
 # Werror hack
 Patch4:		%{name}-makefile-werror.patch
 URL:		http://www.madwifi.org/
@@ -120,8 +118,6 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 %patch1 -p1
 # fix - ticket 617
 %patch2 -p1
-# fix - ticket 946
-%patch3 -p1
 
 %patch4 -p1
 
