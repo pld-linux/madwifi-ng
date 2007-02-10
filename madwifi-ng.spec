@@ -10,11 +10,11 @@
 #
 %define		snap_year	2007
 %define		snap_month	02
-%define		snap_day	07
+%define		snap_day	10
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		_rel	0.%{snap}.1
-%define		trunk	r2085
+%define		trunk	r2100
 Summary:	Atheros WiFi card driver
 Summary(pl):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
@@ -24,16 +24,14 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2085-20070207.tar.gz
+# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2100-20070210.tar.gz
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	576b9a63d60061d33d301f14de9d1586
+# Source0-md5:	e7e0f50615b48c4ea70e6d219d141728
 # http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
 Patch0:		%{name}-r1886.patch
 Patch1:		%{name}-gcc4.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{name}-ticket-617.patch
-# Werror hack
-Patch4:		%{name}-makefile-werror.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
@@ -119,13 +117,11 @@ Ten pakiet zawiera modu³ j±dra Linuksa SMP.
 # fix - ticket 617
 %patch2 -p1
 
-%patch4 -p1
-
 %build
 %if %{with userspace}
 %{__make} -C tools \
 	CC="%{__cc}" \
-	CFLAGS="-include include/compat.h -\$(INCS) %{rpmcflags}" \
+	CFLAGS="%{rpmcflags}" \
 	KERNELCONF="%{_kernelsrcdir}/config-up"
 %endif
 
