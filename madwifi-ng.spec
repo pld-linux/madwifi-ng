@@ -16,7 +16,7 @@
 %define		_rel	0.%{snap}.1
 %define		trunk	r2100
 Summary:	Atheros WiFi card driver
-Summary(pl.UTF-8):   Sterownik karty radiowej Atheros
+Summary(pl.UTF-8):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
 Version:	0
 Release:	%{_rel}
@@ -53,7 +53,7 @@ AR5211, AR5212, RF5111, RF5112, RF2413 i RF5413.
 
 %package devel
 Summary:	Header files for madwifi
-Summary(pl.UTF-8):   Pliki nagłówkowe dla madwifi
+Summary(pl.UTF-8):	Pliki nagłówkowe dla madwifi
 Group:		Development/Libraries
 Provides:	madwifi-devel
 Obsoletes:	madwifi-devel
@@ -68,7 +68,7 @@ Pliki nagłówkowe dla madwifi.
 
 %package -n kernel%{_alt_kernel}-net-madwifi-ng
 Summary:	Linux driver for Atheros cards
-Summary(pl.UTF-8):   Sterownik dla Linuksa do kart Atheros
+Summary(pl.UTF-8):	Sterownik dla Linuksa do kart Atheros
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -89,7 +89,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 
 %package -n kernel%{_alt_kernel}-smp-net-madwifi-ng
 Summary:	Linux SMP driver for %{name} cards
-Summary(pl.UTF-8):   Sterownik dla Linuksa SMP do kart %{name}
+Summary(pl.UTF-8):	Sterownik dla Linuksa SMP do kart %{name}
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
