@@ -8,15 +8,15 @@
 %bcond_without	userspace	# don't build userspace module
 %bcond_with	verbose		# verbose build (V=1)
 #
-%define		snap_year	2006
-%define		snap_month	12
-%define		snap_day	15
+%define		snap_year	2007
+%define		snap_month	02
+%define		snap_day	25
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.3
-%define		trunk	r1860
+%define		_rel	0.%{snap}.1
+%define		trunk	r2156
 Summary:	Atheros WiFi card driver
-Summary(pl):	Sterownik karty radiowej Atheros
+Summary(pl.UTF-8):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
 Version:	0
 Release:	%{_rel}
@@ -24,19 +24,13 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r1850-20061209.tar.gz
+# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2156-20070225.tar.gz
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	5971699e941cbbb527a8240bbe44d4d4
-# http://patches.aircrack-ng.org/madwifi-ng-r1816.patch
-Patch0:		%{name}-r1816.patch
-Patch1:		%{name}-gcc4.patch
+# Source0-md5:	8cee25705f94e1ffcf84cc084d5a6996
+# http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
+Patch0:		%{name}-r1886.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{name}-ticket-617.patch
-# http://madwifi.org/ticket/946
-Patch3:		%{name}-ieee80211_wireless.c.patch
-# Werror hack
-Patch4:		%{name}-makefile-werror.patch
-Patch5:		%{name}-2.6.20.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
@@ -47,15 +41,18 @@ ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Atheros WiFi card driver. Support Virtual APs and WDS Mode.
+Atheros WiFi card driver. Supports Virtual APs and WDS Mode. It uses binary 
+HAL and supports AR5210, AR5211, AR5212, RF5111, RF5112, RF2413 and RF5413 
+cards.
 
-%description -l pl
+%description -l pl.UTF-8
 Sterownik karty radiowej Atheros. Wspiera tryb wirtualnego AP oraz
-tryb WDS.
+tryb WDS. U≈ºywa binarnej wersji HAL i obs≈Çuguje karty z uk≈Çadami AR5210, 
+AR5211, AR5212, RF5111, RF5112, RF2413 i RF5413.
 
 %package devel
 Summary:	Header files for madwifi
-Summary(pl):	Pliki nag≥Ûwkowe dla madwifi
+Summary(pl.UTF-8):	Pliki nag≈Ç√≥wkowe dla madwifi
 Group:		Development/Libraries
 Provides:	madwifi-devel
 Obsoletes:	madwifi-devel
@@ -63,14 +60,14 @@ Obsoletes:	madwifi-devel
 %description devel
 Header files for madwifi.
 
-%description devel -l pl
-Pliki nag≥Ûwkowe dla madwifi.
+%description devel -l pl.UTF-8
+Pliki nag≈Ç√≥wkowe dla madwifi.
 
 # kernel subpackages.
 
 %package -n kernel%{_alt_kernel}-net-madwifi-ng
 Summary:	Linux driver for Atheros cards
-Summary(pl):	Sterownik dla Linuksa do kart Atheros
+Summary(pl.UTF-8):	Sterownik dla Linuksa do kart Atheros
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -84,14 +81,14 @@ This is driver for Atheros card for Linux.
 
 This package contains Linux module.
 
-%description -n kernel%{_alt_kernel}-net-madwifi-ng -l pl
+%description -n kernel%{_alt_kernel}-net-madwifi-ng -l pl.UTF-8
 Sterownik dla Linuksa do kart Atheros.
 
-Ten pakiet zawiera modu≥ j±dra Linuksa.
+Ten pakiet zawiera modu≈Ç jƒÖdra Linuksa.
 
 %package -n kernel%{_alt_kernel}-smp-net-madwifi-ng
 Summary:	Linux SMP driver for %{name} cards
-Summary(pl):	Sterownik dla Linuksa SMP do kart %{name}
+Summary(pl.UTF-8):	Sterownik dla Linuksa SMP do kart %{name}
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -105,30 +102,23 @@ This is driver for Atheros cards for Linux.
 
 This package contains Linux SMP module.
 
-%description -n kernel%{_alt_kernel}-smp-net-madwifi-ng -l pl
+%description -n kernel%{_alt_kernel}-smp-net-madwifi-ng -l pl.UTF-8
 Sterownik dla Linuksa do kart Atheros.
 
-Ten pakiet zawiera modu≥ j±dra Linuksa SMP.
+Ten pakiet zawiera modu≈Ç jƒÖdra Linuksa SMP.
 
 %prep
 %setup -q -n %{name}-%{trunk}-%{snap}
 # airckrack-ng
 %patch0 -p1
-# gcc4
-%patch1 -p1
 # fix - ticket 617
 %patch2 -p1
-# fix - ticket 946
-%patch3 -p1
-
-%patch4 -p1
-%patch5 -p0
 
 %build
 %if %{with userspace}
 %{__make} -C tools \
 	CC="%{__cc}" \
-	CFLAGS="-include include/compat.h -\$(INCS) %{rpmcflags}" \
+	CFLAGS="%{rpmcflags}" \
 	KERNELCONF="%{_kernelsrcdir}/config-up"
 %endif
 
