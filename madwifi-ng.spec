@@ -10,11 +10,11 @@
 #
 %define		snap_year	2007
 %define		snap_month	02
-%define		snap_day	18
+%define		snap_day	25
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		_rel	0.%{snap}.1
-%define		trunk	r2126
+%define		trunk	r2156
 Summary:	Atheros WiFi card driver
 Summary(pl.UTF-8):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
@@ -24,9 +24,9 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2126-20070218.tar.gz
+# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2156-20070225.tar.gz
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	78f2bbfb7258fb7a374fde1a436642d8
+# Source0-md5:	8cee25705f94e1ffcf84cc084d5a6996
 # http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
 Patch0:		%{name}-r1886.patch
 # http://madwifi.org/ticket/617
