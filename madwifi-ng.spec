@@ -13,7 +13,7 @@
 %define		snap_day	25
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.1
+%define		_rel	0.%{snap}.2
 %define		trunk	r2156
 Summary:	Atheros WiFi card driver
 Summary(pl.UTF-8):	Sterownik karty radiowej Atheros
@@ -29,6 +29,8 @@ Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	8cee25705f94e1ffcf84cc084d5a6996
 # http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
 Patch0:		%{name}-r1886.patch
+# needed when build against (more noisy) pax enabled kernel
+Patch1:		%{name}-makefile-werror.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{name}-ticket-617.patch
 URL:		http://www.madwifi.org/
@@ -111,6 +113,8 @@ Ten pakiet zawiera moduł jądra Linuksa SMP.
 %setup -q -n %{name}-%{trunk}-%{snap}
 # airckrack-ng
 %patch0 -p1
+# werror
+%patch1 -p1
 # fix - ticket 617
 %patch2 -p1
 
