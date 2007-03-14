@@ -124,7 +124,7 @@ Ten pakiet zawiera moduł jądra Linuksa SMP.
 %{__make} -C tools \
 	CC="%{__cc}" \
 	CFLAGS="%{rpmcflags}" \
-	KERNELCONF="%{_kernelsrcdir}/config-up"
+	KERNELCONF="%{_kernelsrcdir}/config-%{?with_up:up}%{?with_smp:smp}"
 %endif
 
 %if %{with kernel}
@@ -163,7 +163,7 @@ install -d $RPM_BUILD_ROOT%{_bindir}
 
 %{__make} install-tools \
 	TARGET=%{target} \
-	KERNELCONF="%{_kernelsrcdir}/config-up" \
+	KERNELCONF="%{_kernelsrcdir}/config-%{?with_up:up}%{?with_smp:smp}" \
 	KERNELPATH="%{_kernelsrcdir}" \
 	DESTDIR=$RPM_BUILD_ROOT \
 	BINDIR=%{_bindir} \
