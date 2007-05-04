@@ -1,11 +1,11 @@
---- madwifi-ng-r1860-20061215/Makefile.inc~	2006-11-28 02:25:14.000000000 +0100
-+++ madwifi-ng-r1860-20061215/Makefile.inc	2006-12-19 12:26:40.000000000 +0100
-@@ -152,7 +152,7 @@ endif
- # 
+--- madwifi-ng-r2308-20070504.a/Makefile.inc	2007-04-26 06:08:01.000000000 +0200
++++ madwifi-ng-r2308-20070504.b/Makefile.inc	2007-05-04 23:59:07.000000000 +0200
+@@ -147,7 +147,7 @@
  TOOLS=  $(TOP)/tools 
  
--COPTS+=	-Werror
-+##COPTS+=	-Werror
+ WARNINGS = -Werror
+-COPTS+= $(WARNINGS)
++#COPTS+= $(WARNINGS)
  INCS=	-include $(TOP)/include/compat.h -I$(TOP)/include
  
  # TARGET defines the target platform architecture. It must match one of
