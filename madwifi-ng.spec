@@ -9,11 +9,11 @@
 #
 %define		snap_year	2007
 %define		snap_month	05
-%define		snap_day	04
+%define		snap_day	22
 %define		snap	%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		_rel	0.%{snap}.1
-%define		trunk	r2308
+%define		trunk	r2362
 Summary:	Atheros WiFi card driver
 Summary(pl.UTF-8):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
@@ -23,9 +23,9 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2308-20070504.tar.gz
+# http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2362-20070522.tar.gz
 Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	d5fd619e4476a75f924fd02e74c012d7
+# Source0-md5:	7a7783ecf6596089afc4aeebdffb397b
 # http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
 Patch0:		%{name}-r1886.patch
 # needed when build against (more noisy) pax enabled kernel
