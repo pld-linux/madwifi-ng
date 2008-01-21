@@ -5,7 +5,6 @@
 %bcond_without	dist_kernel	# allow non-distribution kernel
 %bcond_without	kernel		# don't build kernel modules
 %bcond_without	userspace	# don't build userspace module
-%bcond_with	verbose		# verbose build (V=1)
 #
 %define		snap_year	2007
 %define		snap_month	10
@@ -14,9 +13,16 @@
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		_rel	0.%{snap}.7
 %define		trunk	r2799
+
+%if "%{_alt_kernel}" != "%{nil}"
+%undefine	with_userspace
+%endif
+
+%define		pname	madwifi-ng
+
 Summary:	Atheros WiFi card driver
 Summary(pl.UTF-8):	Sterownik karty radiowej Atheros
-Name:		madwifi-ng
+Name:		%{pname}%{_alt_kernel}
 Version:	0
 Release:	%{_rel}
 License:	GPL/BSD (partial source)
@@ -24,14 +30,14 @@ Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
 # http://snapshots.madwifi.org/madwifi-ng/madwifi-ng-r2362-20070522.tar.gz
-Source0:	http://snapshots.madwifi.org/madwifi-ng/%{name}-%{trunk}-%{snap}.tar.gz
+Source0:	http://snapshots.madwifi.org/madwifi-ng/%{pname}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	58fdb5d5acf73ccd4577f17fbd7c6a22
 # http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
-Patch0:		%{name}-r1886.patch
+Patch0:		%{pname}-r1886.patch
 # needed when build against (more noisy) pax enabled kernel
-Patch1:		%{name}-makefile-werror.patch
+Patch1:		%{pname}-makefile-werror.patch
 # http://madwifi.org/ticket/617
-Patch2:		%{name}-ticket-617.patch
+Patch2:		%{pname}-ticket-617.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
@@ -87,7 +93,7 @@ Sterownik dla Linuksa do kart Atheros.
 Ten pakiet zawiera moduł jądra Linuksa.
 
 %prep
-%setup -q -n %{name}-%{trunk}-%{snap}
+%setup -q -n %{pname}-%{trunk}-%{snap}
 # airckrack-ng
 %patch0 -p1
 # werror
