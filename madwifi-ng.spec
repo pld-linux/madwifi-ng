@@ -10,15 +10,17 @@
 %define		snap_year	2007
 %define		snap_month	10
 %define		snap_day	30
-%define		snap	%{snap_year}%{snap_month}%{snap_day}
+%define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
-%define		_rel	0.%{snap}.7
+%define		prel	0.%{snap}.%{rel}
 %define		trunk	r2799
+
+%define		rel		8
 Summary:	Atheros WiFi card driver
 Summary(pl.UTF-8):	Sterownik karty radiowej Atheros
 Name:		madwifi-ng
 Version:	0
-Release:	%{_rel}
+Release:	%{prel}
 License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
@@ -67,7 +69,7 @@ Pliki nagłówkowe dla madwifi.
 %package -n kernel%{_alt_kernel}-net-madwifi-ng
 Summary:	Linux driver for Atheros cards
 Summary(pl.UTF-8):	Sterownik dla Linuksa do kart Atheros
-Release:	%{_rel}@%{_kernel_ver_str}
+Release:	%{prel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
 %if %{with dist_kernel}
