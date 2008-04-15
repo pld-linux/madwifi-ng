@@ -49,15 +49,20 @@ BuildRequires:	sharutils
 ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64 xscale
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
+%if %{without userspace}
+# nothing to be placed to debuginfo package
+%define		_enable_debug_packages	0
+%endif
+
 %description
-Atheros WiFi card driver. Supports Virtual APs and WDS Mode. It uses binary 
-HAL and supports AR5210, AR5211, AR5212, RF5111, RF5112, RF2413 and RF5413 
-cards.
+Atheros WiFi card driver. Supports Virtual APs and WDS Mode. It uses
+binary HAL and supports AR5210, AR5211, AR5212, RF5111, RF5112, RF2413
+and RF5413 cards.
 
 %description -l pl.UTF-8
 Sterownik karty radiowej Atheros. Wspiera tryb wirtualnego AP oraz
-tryb WDS. Używa binarnej wersji HAL i obsługuje karty z układami AR5210, 
-AR5211, AR5212, RF5111, RF5112, RF2413 i RF5413.
+tryb WDS. Używa binarnej wersji HAL i obsługuje karty z układami
+AR5210, AR5211, AR5212, RF5111, RF5112, RF2413 i RF5413.
 
 %package devel
 Summary:	Header files for madwifi
@@ -131,7 +136,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 
 %define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" KERNELCONF="$PWD/o/.config" TOOLPREFIX=
 
-make svnversion.h
+%{__make} svnversion.h
 %build_kernel_modules -c -m %{modules} %{opts} <<'EOF'
 find -name "*.o" | xargs -r rm
 ln -sf ../Makefile.inc o/Makefile.inc
