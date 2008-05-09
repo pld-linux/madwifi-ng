@@ -116,9 +116,6 @@ Ten pakiet zawiera moduł jądra Linuksa.
 	KERNELCONF="%{_kernelsrcdir}/config-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}"
 %endif
 
-%if %{with kernel}
-# kernel module(s)
-
 %ifarch alpha %{ix86} %{x8664}
 %define target %{_target_base_arch}-elf
 %endif
@@ -128,6 +125,9 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %ifarch powerpc ppc
 %define target powerpc-be-elf
 %endif
+
+%if %{with kernel}
+# kernel module(s)
 
 # default is ath_rate_sample now compiles, _onoe does not
 %define modules_ath ath/ath_pci,ath_hal/ath_hal,ath_rate/sample/ath_rate_sample
