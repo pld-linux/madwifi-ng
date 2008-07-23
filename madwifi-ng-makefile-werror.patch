@@ -1,9 +1,9 @@
---- madwifi-ng-r2308-20070504.a/Makefile.inc	2007-04-26 06:08:01.000000000 +0200
-+++ madwifi-ng-r2308-20070504.b/Makefile.inc	2007-05-04 23:59:07.000000000 +0200
-@@ -147,7 +147,7 @@
+--- madwifi-ng-r3556-20080421/Makefile.inc	2008-04-18 02:08:35.000000000 +0000
++++ madwifi-ng-r3556-20080421/Makefile.inc	2008-07-22 18:41:38.000000000 +0000
+@@ -148,7 +148,7 @@
  TOOLS=  $(TOP)/tools 
  
- WARNINGS = -Werror
+ WARNINGS = -Werror -Wall
 -COPTS+= $(WARNINGS)
 +#COPTS+= $(WARNINGS)
  INCS=	-include $(TOP)/include/compat.h -I$(TOP)/include

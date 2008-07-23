@@ -8,14 +8,14 @@
 %bcond_with	verbose		# verbose build (V=1)
 #
 %define		snap_year	2008
-%define		snap_month	01
-%define		snap_day	24
+%define		snap_month	04
+%define		snap_day	21
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
-%define		trunk	r3235
+%define		trunk	r3556
 
-%define		rel		17
+%define		rel		0.1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %undefine	with_userspace
@@ -32,8 +32,8 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-Source0:	http://snapshots.madwifi.org/madwifi-ng/%{pname}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	32c09fdc224782261bc8a8a37f4a9d9e
+Source0:	http://snapshots.madwifi.org/madwifi-trunk/%{pname}-%{trunk}-%{snap}.tar.gz
+# Source0-md5:	25b8749f4f03fc714c4e924d04f7b5a0
 # http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
 Patch0:		%{pname}-r1886.patch
 # needed when build against (more noisy) pax enabled kernel
