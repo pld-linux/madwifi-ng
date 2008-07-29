@@ -15,7 +15,7 @@
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r3556
 
-%define		rel		0.1
+%define		rel		1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %undefine	with_userspace
@@ -40,6 +40,7 @@ Patch0:		%{pname}-r1886.patch
 Patch1:		%{pname}-makefile-werror.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{pname}-ticket-617.patch
+Patch3:		%{pname}-ieee80211-skb-update.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
@@ -107,6 +108,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %patch1 -p1
 # fix - ticket 617
 %patch2 -p1
+%patch3 -p1
 
 %build
 %if %{with userspace}
