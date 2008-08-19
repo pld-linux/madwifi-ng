@@ -45,7 +45,6 @@ URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
 BuildRequires:	rpmbuild(macros) >= 1.379
-BuildRequires:	sharutils
 %endif
 ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64 xscale
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
