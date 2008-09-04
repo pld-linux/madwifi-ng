@@ -8,20 +8,21 @@
 %bcond_with	verbose		# verbose build (V=1)
 #
 %define		snap_year	2008
-%define		snap_month	04
-%define		snap_day	21
+%define		snap_month	09
+%define		snap_day	03
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
-%define		trunk	r3556
+%define		trunk	r3856
 
-%define		rel		5
+%define		rel		0.1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %undefine	with_userspace
 %endif
 
 %define		pname	madwifi-ng
+%define		tname	madwifi-trunk
 
 Summary:	Atheros WiFi card driver
 Summary(pl.UTF-8):	Sterownik karty radiowej Atheros
@@ -32,10 +33,10 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-Source0:	http://snapshots.madwifi.org/madwifi-trunk/%{pname}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	25b8749f4f03fc714c4e924d04f7b5a0
-# http://patches.aircrack-ng.org/madwifi-ng-r1886.patch
-Patch0:		%{pname}-r1886.patch
+Source0:	http://snapshots.madwifi.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
+# Source0-md5:	040a2bf7897cbb9d3592b4e5a0b54b00
+# http://patches.aircrack-ng.org/madwifi-ng-r3745.patch
+Patch0:		%{pname}-r3745.patch
 # needed when build against (more noisy) pax enabled kernel
 Patch1:		%{pname}-makefile-werror.patch
 # http://madwifi.org/ticket/617
@@ -100,7 +101,7 @@ Sterownik dla Linuksa do kart Atheros.
 Ten pakiet zawiera moduł jądra Linuksa.
 
 %prep
-%setup -q -n %{pname}-%{trunk}-%{snap}
+%setup -q -n %{tname}-%{trunk}-%{snap}
 # airckrack-ng
 %patch0 -p1
 # werror
@@ -135,9 +136,9 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %define modules_wlan net80211/wlan,net80211/wlan_{wep,xauth,acl,ccmp,tkip,scan_{ap,sta}}
 %define modules %{modules_ath},%{modules_wlan}
 
-%define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" KERNELCONF="$PWD/o/.config" TOOLPREFIX=
+%define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" KERNELCONF="%{_kernelsrcdir}/config-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}" TOOLPREFIX=
 
-%{__make} svnversion.h
+%{__make} %{opts}  svnversion.h
 %build_kernel_modules -c -m %{modules} %{opts} <<'EOF'
 find -name "*.o" | xargs -r rm
 ln -sf ../Makefile.inc o/Makefile.inc
