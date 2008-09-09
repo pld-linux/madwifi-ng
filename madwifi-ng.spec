@@ -15,7 +15,7 @@
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r3856
 
-%define		rel		0.1
+%define		rel		1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %undefine	with_userspace
