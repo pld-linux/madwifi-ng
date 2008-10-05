@@ -11,11 +11,11 @@
 #
 %define		snap_year	2008
 %define		snap_month	09
-%define		snap_day	03
+%define		snap_day	24
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
-%define		trunk	r3856
+%define		trunk	r3867
 
 %define		rel		1
 
@@ -36,7 +36,7 @@ Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	040a2bf7897cbb9d3592b4e5a0b54b00
+# Source0-md5:	63342cc997484d43c3b5795f7c55395a
 # http://patches.aircrack-ng.org/madwifi-ng-r3745.patch
 Patch0:		%{pname}-r3745.patch
 # needed when build against (more noisy) pax enabled kernel
