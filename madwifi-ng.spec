@@ -9,15 +9,15 @@
 %bcond_without	userspace	# don't build userspace module
 %bcond_with	verbose		# verbose build (V=1)
 #
-%define		snap_year	2008
-%define		snap_month	12
-%define		snap_day	04
+%define		snap_year	2009
+%define		snap_month	02
+%define		snap_day	05
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
-%define		trunk	r3878
+%define		trunk	r3941
 
-%define		rel		9
+%define		rel		0.1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %undefine	with_userspace
@@ -35,16 +35,16 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-Source0:	http://snapshots.madwifi.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	bf12d0f9f306dad91bf7530586712dee
-# http://patches.aircrack-ng.org/madwifi-ng-r3745.patch
-Patch0:		%{pname}-r3745.patch
+Source0:	http://snapshots.madwifi-project.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
+# Source0-md5:	1ed3e3bc3f8423fb4f93dd0a3b55219a
+# http://patches.aircrack-ng.org/madwifi-ng-r3925.patch
+Patch0:		%{pname}-r3925.patch
 # needed when build against (more noisy) pax enabled kernel
 Patch1:		%{pname}-makefile-werror.patch
-# http://madwifi.org/ticket/617
+# http://madwifi-project.org/ticket/617
 Patch2:		%{pname}-ticket-617.patch
 Patch3:		%{pname}-ieee80211-skb-update.patch
-URL:		http://www.madwifi.org/
+URL:		http://madwifi-project.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
 BuildRequires:	rpmbuild(macros) >= 1.379
