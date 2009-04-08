@@ -1,0 +1,2460 @@
+diff -upr madwifi-trunk-r3878-20081204./ath/if_ath.c madwifi-trunk-r3878-20081204/ath/if_ath.c
+--- madwifi-trunk-r3878-20081204./ath/if_ath.c	2009-04-08 21:10:30.810073296 +0000
++++ madwifi-trunk-r3878-20081204/ath/if_ath.c	2009-04-08 22:13:20.472196131 +0000
+@@ -475,7 +475,11 @@ MODULE_PARM_DESC(ieee80211_debug, "Load-
+ int
+ ath_attach(u_int16_t devid, struct net_device *dev, HAL_BUS_TAG tag)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	struct ieee80211vap *vap;
+ 	struct ath_hal *ah;
+@@ -1127,7 +1131,11 @@ bad:
+ int
+ ath_detach(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 
+ 	HAL_INT tmp;
+@@ -1191,7 +1199,11 @@ static struct ieee80211vap *
+ ath_vap_create(struct ieee80211com *ic, const char *name,
+ 	int opmode, int flags, struct net_device *mdev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct net_device *dev;
+ 	struct ath_vap *avp;
+@@ -1266,7 +1278,11 @@ ath_vap_create(struct ieee80211com *ic, 
+ 		return NULL;
+ 	}
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	avp = dev->ml_priv;
++#else
+ 	avp = dev->priv;
++#endif
+ 	ieee80211_vap_setup(ic, dev, name, opmode, flags);
+ 	/* override with driver methods */
+ 	vap = &avp->av_vap;
+@@ -1450,7 +1466,11 @@ static void
+ ath_vap_delete(struct ieee80211vap *vap)
+ {
+ 	struct net_device *dev = vap->iv_ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ath_vap *avp = ATH_VAP(vap);
+ 	int decrease = 1;
+@@ -1550,14 +1570,22 @@ ath_vap_delete(struct ieee80211vap *vap)
+ void
+ ath_suspend(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	DPRINTF(((struct ath_softc *)dev->ml_priv), ATH_DEBUG_ANY, "flags=%x\n", dev->flags);
++#else
+ 	DPRINTF(((struct ath_softc *)dev->priv), ATH_DEBUG_ANY, "flags=%x\n", dev->flags);
++#endif
+ 	ath_stop(dev);
+ }
+ 
+ void
+ ath_resume(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	DPRINTF(((struct ath_softc *)dev->ml_priv), ATH_DEBUG_ANY, "flags=%x\n", dev->flags);
++#else
+ 	DPRINTF(((struct ath_softc *)dev->priv), ATH_DEBUG_ANY, "flags=%x\n", dev->flags);
++#endif
+ 	ath_init(dev);
+ }
+ 
+@@ -2312,7 +2340,11 @@ ath_intr(int irq, void *dev_id, struct p
+ #endif
+ {
+ 	struct net_device *dev = dev_id;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	u_int64_t hw_tsf = 0;
+ 	HAL_INT status;
+@@ -2508,7 +2540,11 @@ static void
+ ath_fatal_tasklet(TQUEUE_ARG data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	EPRINTF(sc, "Hardware error; resetting.\n");
+ 	ath_reset(dev);
+@@ -2518,7 +2554,11 @@ static void
+ ath_rxorn_tasklet(TQUEUE_ARG data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	EPRINTF(sc, "Receive FIFO overrun; resetting.\n");
+ 	ath_reset(dev);
+@@ -2528,7 +2568,11 @@ static void
+ ath_bmiss_tasklet(TQUEUE_ARG data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	if (time_before(jiffies, sc->sc_ic.ic_bmiss_guard)) {
+ 		/* Beacon miss interrupt occured too short after last beacon
+@@ -2570,7 +2614,11 @@ ath_chan2flags(struct ieee80211_channel 
+ static int
+ ath_init(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	HAL_STATUS status;
+@@ -2673,7 +2721,11 @@ done:
+ static int
+ ath_stop_locked(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	struct ath_hal *ah = sc->sc_ah;
+ 
+@@ -2754,7 +2806,11 @@ static void ath_set_beacon_cal(struct at
+ static int
+ ath_stop(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	int error;
+ 
+ 	ATH_LOCK(sc);
+@@ -2794,7 +2850,11 @@ ath_stop(struct net_device *dev)
+ static int
+ ath_reset(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ieee80211_channel *c;
+@@ -2999,7 +3059,11 @@ dot11_to_ratecode(struct ath_softc *sc, 
+ static int
+ ath_tx_startraw(struct net_device *dev, struct ath_buf *bf, struct sk_buff *skb)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ieee80211_phy_params *ph = &(SKB_CB(skb)->phy); 
+@@ -3315,7 +3379,11 @@ _take_txbuf(struct ath_softc *sc, int fo
+ static int
+ ath_hardstart(struct sk_buff *__skb, struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211_node *ni = NULL;
+ 	struct ath_buf *bf = NULL;
+ 	struct ether_header *eh;
+@@ -3662,7 +3730,11 @@ static int
+ ath_mgtstart(struct ieee80211com *ic, struct sk_buff *skb)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_buf *bf = NULL;
+ 	int error;
+ 
+@@ -3994,7 +4066,11 @@ static ieee80211_keyix_t
+ ath_key_alloc(struct ieee80211vap *vap, const struct ieee80211_key *k)
+ {
+ 	struct net_device *dev = vap->iv_ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	/*
+ 	 * Group key allocation must be handled specially for
+@@ -4059,7 +4135,11 @@ ath_key_delete(struct ieee80211vap *vap,
+ 				struct ieee80211_node *ninfo)
+ {
+ 	struct net_device *dev = vap->iv_ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ieee80211_node *ni = NULL;
+ 	const struct ieee80211_cipher *cip = k->wk_cipher;
+@@ -4135,7 +4215,11 @@ ath_key_set(struct ieee80211vap *vap, co
+ 	const u_int8_t mac[IEEE80211_ADDR_LEN])
+ {
+ 	struct net_device *dev = vap->iv_ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	return ath_keyset(sc, k, mac, vap->iv_bss);
+ }
+@@ -4150,7 +4234,11 @@ static void
+ ath_key_update_begin(struct ieee80211vap *vap)
+ {
+ 	struct net_device *dev = vap->iv_ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	DPRINTF(sc, ATH_DEBUG_KEYCACHE, "Begin\n");
+ 	/*
+@@ -4171,7 +4259,11 @@ static void
+ ath_key_update_end(struct ieee80211vap *vap)
+ {
+ 	struct net_device *dev = vap->iv_ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	DPRINTF(sc, ATH_DEBUG_KEYCACHE, "End\n");
+ 	netif_wake_queue(dev);
+@@ -4261,7 +4353,11 @@ ath_merge_mcast(struct ath_softc *sc, u_
+ static void
+ ath_mode_init(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	u_int32_t rfilt, mfilt[2];
+ 
+@@ -4455,7 +4551,11 @@ ath_setctstimeout(struct ath_softc *sc)
+ static void
+ ath_updateslot(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 
+ 	/*
+@@ -4482,7 +4582,11 @@ static void
+ ath_beacon_dturbo_config(struct ieee80211vap *vap, u_int32_t intval)
+ {
+ 	struct ieee80211com *ic = vap->iv_ic;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 
+ 	/* Check VAP capability. */
+ 	if ((ic->ic_opmode == IEEE80211_M_HOSTAP) && vap->iv_bss &&
+@@ -4531,7 +4635,11 @@ static void
+ ath_beacon_dturbo_update(struct ieee80211vap *vap, int *needmark, u_int8_t dtim)
+ {
+ 	struct ieee80211com *ic = vap->iv_ic;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	u_int32_t bss_traffic;
+ 
+ 	if (sc->sc_ignore_ar) {
+@@ -4674,7 +4782,11 @@ static void
+ ath_turbo_switch_mode(unsigned long data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	unsigned int newflags;
+ 
+@@ -5388,7 +5500,11 @@ static void
+ ath_bstuck_tasklet(TQUEUE_ARG data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	/*
+ 	 * XXX:if the bmisscount is cleared while the
+ 	 *     tasklet execution is pending, the following
+@@ -5813,7 +5929,11 @@ ath_desc_free(struct ath_softc *sc)
+ static struct ieee80211_node *
+ ath_node_alloc(struct ieee80211vap *vap)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = vap->iv_ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = vap->iv_ic->ic_dev->priv;
++#endif
+ 	const size_t space = sizeof(struct ath_node) + sc->sc_rc->arc_space;
+ 	struct ath_node *an = kzalloc(space, GFP_ATOMIC);
+ 	if (an != NULL) {
+@@ -5841,7 +5961,11 @@ static void
+ ath_node_cleanup(struct ieee80211_node *ni)
+ {
+ 	struct ieee80211com *ic = ni->ni_ic;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ni->ni_ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ni->ni_ic->ic_dev->priv;
++#endif
+ 	struct ath_node *an = ATH_NODE(ni);
+ 	struct ath_buf *bf;
+ 
+@@ -5926,7 +6050,11 @@ ath_node_move_data(const struct ieee8021
+ #ifdef NOT_YET
+ 	struct ath_txq *txq = NULL;
+ 	struct ieee80211com *ic = ni->ni_ic;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	struct ath_buf *bf, *prev, *bf_tmp, *bf_tmp1;
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct sk_buff *skb = NULL;
+@@ -6362,7 +6490,11 @@ static int
+ ath_recv_mgmt(struct ieee80211vap * vap, struct ieee80211_node *ni_or_null,
+ 	struct sk_buff *skb, int subtype, int rssi, u_int64_t rtsf)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = vap->iv_ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = vap->iv_ic->ic_dev->priv;
++#endif
+ 	struct ieee80211_node * ni = ni_or_null;
+ 	u_int64_t hw_tsf, beacon_tsf;
+ 	u_int32_t hw_tu, beacon_tu, intval;
+@@ -6493,7 +6625,11 @@ ath_rx_tasklet(TQUEUE_ARG data)
+ 		((_pa) - (_sc)->sc_rxdma.dd_desc_paddr)))
+ 	struct net_device *dev = (struct net_device *)data;
+ 	struct ath_buf *bf;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	struct ath_hal *ah = sc ? sc->sc_ah : NULL;
+ 	struct ath_desc *ds;
+@@ -6931,7 +7067,11 @@ static void ath_grppoll_start(struct iee
+ 	struct sk_buff *skb = NULL;
+ 	struct ath_buf *bf = NULL, *head = NULL;
+ 	struct ieee80211com *ic = vap->iv_ic;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	u_int8_t rate;
+ 	unsigned int ctsrate = 0, ctsduration = 0;
+@@ -7137,7 +7277,11 @@ static void ath_grppoll_start(struct iee
+ static void ath_grppoll_stop(struct ieee80211vap *vap)
+ {
+ 	struct ieee80211com *ic = vap->iv_ic;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ath_txq *txq = &sc->sc_grpplq;
+ 	struct ath_buf *bf;
+@@ -7343,7 +7487,11 @@ ath_txq_update(struct ath_softc *sc, str
+ static int
+ ath_wme_update(struct ieee80211com *ic)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 
+ 	if (sc->sc_uapsdq)
+ 		ath_txq_update(sc, sc->sc_uapsdq, WME_AC_VO);
+@@ -7362,7 +7510,11 @@ ath_uapsd_flush(struct ieee80211_node *n
+ {
+ 	struct ath_node *an = ATH_NODE(ni);
+ 	struct ath_buf *bf;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ni->ni_ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ni->ni_ic->ic_dev->priv;
++#endif
+ 	struct ath_txq *txq;
+ 
+ 	ATH_NODE_UAPSD_LOCK_IRQ(an);
+@@ -7535,7 +7687,11 @@ static int
+ ath_tx_start(struct net_device *dev, struct ieee80211_node *ni, 
+ 		struct ath_buf *bf, struct sk_buff *skb, int nextfraglen)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = ni->ni_ic;
+ 	struct ieee80211vap *vap = ni->ni_vap;
+ 	struct ath_hal *ah = sc->sc_ah;
+@@ -8384,7 +8540,11 @@ static void
+ ath_tx_tasklet_q0(TQUEUE_ARG data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	if (txqactive(sc->sc_ah, 0))
+ 		ath_tx_processq(sc, &sc->sc_txq[0]);
+@@ -8405,7 +8565,11 @@ static void
+ ath_tx_tasklet_q0123(TQUEUE_ARG data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	/*
+ 	 * Process each active queue.
+@@ -8449,7 +8613,11 @@ static void
+ ath_tx_tasklet(TQUEUE_ARG data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	unsigned int i;
+ 
+ 	for (i = 0; i < HAL_NUM_TX_QUEUES; i++) {
+@@ -8482,7 +8650,11 @@ ath_tx_tasklet(TQUEUE_ARG data)
+ static void
+ ath_tx_timeout(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	int i;
+ 
+ 	if (ath_chan_unavail(sc))
+@@ -8867,7 +9039,11 @@ static void
+ ath_calibrate(unsigned long arg)
+ {
+ 	struct net_device *dev = (struct net_device *)arg;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	/* u_int32_t nchans; */
+@@ -8947,7 +9123,11 @@ static void
+ ath_scan_start(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	u_int32_t rfilt;
+ 
+@@ -8967,7 +9147,11 @@ static void
+ ath_scan_end(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	u_int32_t rfilt;
+ 
+@@ -8985,7 +9169,11 @@ static void
+ ath_set_channel(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	(void) ath_chan_set(sc, ic->ic_curchan);
+ 	/*
+@@ -9001,7 +9189,11 @@ ath_set_channel(struct ieee80211com *ic)
+ static void
+ ath_set_coverageclass(struct ieee80211com *ic)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 
+ 	ath_hal_setcoverageclass(sc->sc_ah, ic->ic_coverageclass, 0);
+ 
+@@ -9011,7 +9203,11 @@ ath_set_coverageclass(struct ieee80211co
+ static u_int
+ ath_mhz2ieee(struct ieee80211com *ic, u_int freq, u_int flags)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 
+ 	return (ath_hal_mhz2ieee(sc->sc_ah, freq, flags));
+ }
+@@ -9026,7 +9222,11 @@ ath_newstate(struct ieee80211vap *vap, e
+ 	struct ath_vap *avp = ATH_VAP(vap);
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ieee80211_node *ni, *wds_ni;
+ 	unsigned int i;
+@@ -9468,7 +9668,11 @@ static void
+ ath_setup_comp(struct ieee80211_node *ni, int enable)
+ {
+ 	struct ieee80211vap *vap = ni->ni_vap;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = vap->iv_ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = vap->iv_ic->ic_dev->priv;
++#endif
+ 	struct ath_node *an = ATH_NODE(ni);
+ 	ieee80211_keyix_t keyix;
+ 
+@@ -9521,7 +9725,11 @@ static void
+ ath_setup_stationkey(struct ieee80211_node *ni)
+ {
+ 	struct ieee80211vap *vap = ni->ni_vap;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = vap->iv_ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = vap->iv_ic->ic_dev->priv;
++#endif
+ 	ieee80211_keyix_t keyix;
+ 
+ 	keyix = ath_key_alloc(vap, &ni->ni_ucastkey);
+@@ -9682,7 +9890,11 @@ ath_newassoc(struct ieee80211_node *ni, 
+ {
+ 	struct ieee80211com *ic = ni->ni_ic;
+ 	struct ieee80211vap *vap = ni->ni_vap;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 
+ 	sc->sc_rc->ops->newassoc(sc, ATH_NODE(ni), isnew);
+ 
+@@ -9713,7 +9925,11 @@ static int
+ ath_getchannels(struct net_device *dev, u_int cc,
+ 	HAL_BOOL outdoor, HAL_BOOL xchanmode)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	HAL_CHANNEL *chans;
+@@ -10011,7 +10227,11 @@ ath_update_txpow(struct ath_softc *sc)
+ static int
+ ath_xr_rate_setup(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	const HAL_RATE_TABLE *rt;
+@@ -10040,7 +10260,11 @@ ath_xr_rate_setup(struct net_device *dev
+ static void
+ ath_setup_subrates(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	const HAL_RATE_TABLE *rt;
+@@ -10083,7 +10307,11 @@ ath_setup_subrates(struct net_device *de
+ static int
+ ath_rate_setup(struct net_device *dev, u_int mode)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	const HAL_RATE_TABLE *rt;
+@@ -10307,7 +10535,11 @@ ath_printtxbuf(const struct ath_buf *bf,
+ {
+ 	const struct ath_tx_status *ts = &bf->bf_dsstatus.ds_txstat;
+ 	const struct ath_desc *ds = bf->bf_desc;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ATH_BUF_NI(bf)->ni_ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ATH_BUF_NI(bf)->ni_ic->ic_dev->priv;
++#endif
+ 	u_int8_t status = done ? ts->ts_status : 0;
+ 
+ 	DPRINTF(sc, ATH_DEBUG_ANY, 
+@@ -10334,7 +10566,11 @@ ath_printtxbuf(const struct ath_buf *bf,
+ static struct net_device_stats *
+ ath_getstats(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct net_device_stats *stats = &sc->sc_devstats;
+ 
+ 	/* update according to private statistics */
+@@ -10357,7 +10593,11 @@ ath_getstats(struct net_device *dev)
+ static int
+ ath_set_mac_address(struct net_device *dev, void *addr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	struct sockaddr *mac = addr;
+@@ -10386,7 +10626,11 @@ ath_set_mac_address(struct net_device *d
+ static int
+ ath_change_mtu(struct net_device *dev, int mtu)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	int error = 0;
+ 
+ 	if (!(ATH_MIN_MTU < mtu && mtu <= ATH_MAX_MTU)) {
+@@ -10475,7 +10719,11 @@ bad:
+ static int
+ ath_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	struct ath_diag ad;
+ 	int error;
+@@ -11224,7 +11472,11 @@ ath_dynamic_sysctl_unregister(struct ath
+ static void
+ ath_announce(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct ath_hal *ah = sc->sc_ah;
+ 	u_int modes, cc;
+ #if 0
+@@ -11420,7 +11672,11 @@ static void
+ txcont_configure_radio(struct ieee80211com *ic)
+ {
+ 	struct net_device           *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc            *sc = dev->ml_priv;
++#else
+ 	struct ath_softc            *sc = dev->priv;
++#endif
+ 	struct ath_hal              *ah = sc->sc_ah;
+ 	struct ieee80211_wme_state  *wme = &ic->ic_wme;
+ 	struct ieee80211vap         *vap = TAILQ_FIRST(&ic->ic_vaps);
+@@ -11691,7 +11947,11 @@ static void
+ txcont_queue_packet(struct ieee80211com *ic, struct ath_txq *txq)
+ {
+ 	struct net_device *dev             = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc               = dev->ml_priv;
++#else
+ 	struct ath_softc *sc               = dev->priv;
++#endif
+ 	struct ath_hal *ah                 = sc->sc_ah;
+ 	struct ath_buf *bf                 = NULL;
+ 	struct sk_buff *skb                = NULL;
+@@ -11825,7 +12085,11 @@ static void
+ txcont_on(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	if (IFF_RUNNING != (ic->ic_dev->flags & IFF_RUNNING)) {
+ 		EPRINTF(sc, "Cannot enable txcont when"
+@@ -11846,7 +12110,11 @@ static void
+ txcont_off(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	if (TAILQ_FIRST(&ic->ic_vaps)->iv_opmode != IEEE80211_M_WDS)
+ 		sc->sc_beacons = 1;
+@@ -11860,7 +12128,11 @@ static int
+ ath_get_dfs_testmode(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	return sc->sc_dfs_testmode;
+ }
+ 
+@@ -11887,7 +12159,11 @@ static void
+ ath_set_dfs_testmode(struct ieee80211com *ic, int value)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	sc->sc_dfs_testmode = !!value;
+ }
+ 
+@@ -11897,7 +12173,11 @@ static int
+ ath_get_txcont(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	return sc->sc_txcont;
+ }
+ 
+@@ -11915,7 +12195,11 @@ static void
+ ath_set_txcont_power(struct ieee80211com *ic, unsigned int txpower)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	int new_txcont_power = txpower > IEEE80211_TXPOWER_MAX ? 
+ 		IEEE80211_TXPOWER_MAX : txpower;
+ 	if (sc->sc_txcont_power != new_txcont_power) {
+@@ -11933,7 +12217,11 @@ static int
+ ath_get_txcont_power(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	/* VERY conservative default */
+ 	return sc->sc_txcont_power ? sc->sc_txcont_power : 0;
+ }
+@@ -11943,7 +12231,11 @@ ath_get_txcont_power(struct ieee80211com
+ ath_set_txcont_rate(struct ieee80211com *ic, unsigned int new_rate)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	if (sc->sc_txcont_rate != new_rate) {
+ 		/*  NOTE: This value is sanity checked and dropped down to 
+ 		 *  closest rate in txcont_on. */
+@@ -11960,7 +12252,11 @@ ath_set_txcont_rate(struct ieee80211com 
+ ath_get_txcont_rate(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	return sc->sc_txcont_rate ? sc->sc_txcont_rate : 0;
+ }
+ 
+@@ -11970,7 +12266,11 @@ static void
+ ath_set_dfs_cac_time(struct ieee80211com *ic, unsigned int time_s)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	sc->sc_dfs_cac_period = time_s;
+ }
+ 
+@@ -11980,7 +12280,11 @@ static unsigned int
+ ath_get_dfs_cac_time(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	return sc->sc_dfs_cac_period;
+ }
+ 
+@@ -12000,7 +12304,11 @@ static void
+ ath_set_dfs_excl_period(struct ieee80211com *ic, unsigned int time_s)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	sc->sc_dfs_excl_period = time_s;
+ }
+ 
+@@ -12009,7 +12317,11 @@ static unsigned int
+ ath_get_dfs_excl_period(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	return sc->sc_dfs_excl_period;
+ }
+ 
+@@ -12021,7 +12333,11 @@ static unsigned int
+ ath_test_radar(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
+-	struct ath_softc *sc   = dev->priv;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
++	struct ath_softc *sc = dev->priv;
++#endif
+ 	if ((ic->ic_flags & IEEE80211_F_DOTH) && (sc->sc_curchan.privFlags & CHANNEL_DFS))
+ 		ath_radar_detected(sc, "ath_test_radar from user space");
+ 	else
+@@ -12036,7 +12352,11 @@ static unsigned int
+ ath_dump_hal_map(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
+-	struct ath_softc *sc   = dev->priv;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
++	struct ath_softc *sc = dev->priv;
++#endif
+ 	ath_hal_dump_map(sc->sc_ah);
+ 	return 0;
+ }
+@@ -12145,7 +12465,11 @@ ath_rcv_dev_event(struct notifier_block 
+ 	void *ptr)
+ {
+ 	struct net_device *dev = (struct net_device *)ptr;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = (struct ath_softc *)dev->ml_priv;
++#else
+ 	struct ath_softc *sc = (struct ath_softc *)dev->priv;
++#endif
+ 
+ 	if (!dev || !sc || dev->open != &ath_init)
+ 		return 0;
+@@ -12262,7 +12586,11 @@ static unsigned int
+ ath_read_register(struct ieee80211com *ic, unsigned int address, 
+ 		unsigned int *value)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	if (address >= MAX_REGISTER_ADDRESS) {
+ 		IPRINTF(sc, "Illegal Atheros register access "
+ 				"attempted: 0x%04x >= 0x%04x\n",
+@@ -12292,7 +12620,11 @@ static unsigned int
+ ath_write_register(struct ieee80211com *ic, unsigned int address, 
+ 		unsigned int value)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	if (address >= MAX_REGISTER_ADDRESS) {
+ 		IPRINTF(sc, "Illegal Atheros register access "
+ 				"attempted: 0x%04x >= 0x%04x\n",
+@@ -12320,7 +12652,11 @@ static void
+ ath_registers_dump(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	ath_ar5212_registers_dump(sc);
+ }
+ #endif /* #ifdef ATH_REVERSE_ENGINEERING */
+@@ -12332,7 +12668,11 @@ static void
+ ath_registers_mark(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	ath_ar5212_registers_mark(sc);
+ }
+ #endif /* #ifdef ATH_REVERSE_ENGINEERING */
+@@ -12344,7 +12684,11 @@ static void
+ ath_registers_dump_delta(struct ieee80211com *ic)
+ {
+ 	struct net_device *dev = ic->ic_dev;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	ath_ar5212_registers_dump_delta(sc);
+ }
+ #endif /* #ifdef ATH_REVERSE_ENGINEERING */
+@@ -12516,7 +12860,11 @@ descdma_get_buffer(struct ath_descdma *d
+ static int ath_debug_iwpriv(struct ieee80211com *ic, 
+ 		unsigned int param, unsigned int value)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	switch (param) {
+ 	case IEEE80211_PARAM_DRAINTXQ:
+ 		printk("Draining tx queue...\n");
+diff -upr madwifi-trunk-r3878-20081204./ath/if_ath_pci.c madwifi-trunk-r3878-20081204/ath/if_ath_pci.c
+--- madwifi-trunk-r3878-20081204./ath/if_ath_pci.c	2008-07-30 21:33:40.000000000 +0000
++++ madwifi-trunk-r3878-20081204/ath/if_ath_pci.c	2009-04-08 22:13:20.472196131 +0000
+@@ -214,7 +214,11 @@ ath_pci_probe(struct pci_dev *pdev, cons
+ 		printk(KERN_ERR "%s: no memory for device state\n", dev_info);
+ 		goto bad2;
+ 	}
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	sc = dev->ml_priv;
++#else
+ 	sc = dev->priv;
++#endif
+ 	sc->aps_sc.sc_dev = dev;
+ 	sc->aps_sc.sc_iobase = mem;
+ 
+@@ -295,7 +299,11 @@ static void
+ ath_pci_remove(struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_pci_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_pci_softc *sc = dev->priv;
++#endif
+ 
+ 	ath_detach(dev);
+ 	if (dev->irq)
+@@ -313,7 +321,11 @@ ath_pci_suspend(struct pci_dev *pdev, pm
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 
+ 	ath_suspend(dev);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	PCI_SAVE_STATE(pdev, ((struct ath_pci_softc *)dev->ml_priv)->aps_pmstate);
++#else
+ 	PCI_SAVE_STATE(pdev, ((struct ath_pci_softc *)dev->priv)->aps_pmstate);
++#endif
+ 	pci_disable_device(pdev);
+ 	return pci_set_power_state(pdev, PCI_D3hot);
+ }
+diff -upr madwifi-trunk-r3878-20081204./ath/if_ath_radar.c madwifi-trunk-r3878-20081204/ath/if_ath_radar.c
+--- madwifi-trunk-r3878-20081204./ath/if_ath_radar.c	2008-07-18 22:00:42.000000000 +0000
++++ madwifi-trunk-r3878-20081204/ath/if_ath_radar.c	2009-04-08 22:13:20.472196131 +0000
+@@ -1524,7 +1524,11 @@ static void ath_rp_clear(struct ath_soft
+ static void ath_rp_tasklet(TQUEUE_ARG data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 
+ 	if (sc->sc_rp_analyze != NULL)
+ 		sc->sc_rp_analyze(sc);
+diff -upr madwifi-trunk-r3878-20081204./ath_rate/amrr/amrr.c madwifi-trunk-r3878-20081204/ath_rate/amrr/amrr.c
+--- madwifi-trunk-r3878-20081204./ath_rate/amrr/amrr.c	2008-06-21 14:40:43.000000000 +0000
++++ madwifi-trunk-r3878-20081204/ath_rate/amrr/amrr.c	2009-04-08 22:13:20.472196131 +0000
+@@ -306,7 +306,11 @@ ath_rate_ctl_start(struct ath_softc *sc,
+ static void
+ ath_rate_cb(void *arg, struct ieee80211_node *ni)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	ath_rate_update(ni->ni_ic->ic_dev->ml_priv, ni, (long) arg);
++#else
+ 	ath_rate_update(ni->ni_ic->ic_dev->priv, ni, (long) arg);
++#endif
+ }
+ 
+ /*
+@@ -316,7 +320,11 @@ static void
+ ath_rate_newstate(struct ieee80211vap *vap, enum ieee80211_state state)
+ {
+ 	struct ieee80211com *ic = vap->iv_ic;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	struct amrr_softc *asc = (struct amrr_softc *)sc->sc_rc;
+ 	struct ieee80211_node *ni;
+ 
+@@ -428,7 +436,11 @@ static void
+ ath_ratectl(unsigned long data)
+ {
+ 	struct net_device *dev = (struct net_device *)data;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = dev->ml_priv;
++#else
+ 	struct ath_softc *sc = dev->priv;
++#endif
+ 	struct amrr_softc *asc = (struct amrr_softc *)sc->sc_rc;
+ 	struct ieee80211com *ic = &sc->sc_ic;
+ 	int interval;
+diff -upr madwifi-trunk-r3878-20081204./ath_rate/minstrel/minstrel.c madwifi-trunk-r3878-20081204/ath_rate/minstrel/minstrel.c
+--- madwifi-trunk-r3878-20081204./ath_rate/minstrel/minstrel.c	2008-07-17 03:44:41.000000000 +0000
++++ madwifi-trunk-r3878-20081204/ath_rate/minstrel/minstrel.c	2009-04-08 22:13:20.475529556 +0000
+@@ -755,7 +755,11 @@ ath_rate_ctl_reset(struct ath_softc *sc,
+ static void
+ ath_rate_cb(void *arg, struct ieee80211_node *ni)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++		ath_rate_ctl_reset(ni->ni_ic->ic_dev->ml_priv, ni);
++#else
+ 		ath_rate_ctl_reset(ni->ni_ic->ic_dev->priv, ni);
++#endif
+ }
+ 
+ /* Reset the rate control state for each 802.11 state transition. */
+@@ -771,8 +775,13 @@ ath_rate_newstate(struct ieee80211vap *v
+ 				ieee80211_iterate_nodes(&ic->ic_sta,
+ 						ath_rate_cb, NULL);
+ 			}
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++			ath_rate_newassoc(ic->ic_dev->ml_priv,
++					ATH_NODE(vap->iv_bss), 1);
++#else
+ 			ath_rate_newassoc(ic->ic_dev->priv,
+ 					ATH_NODE(vap->iv_bss), 1);
++#endif
+ 		}
+ }
+ 
+@@ -960,7 +969,11 @@ ath_proc_read_nodes(struct ieee80211vap 
+ 		(struct ieee80211_node_table *)&vap->iv_ic->ic_sta;
+ 	unsigned int x = 0;
+ 	unsigned int this_tp, this_prob, this_eprob;
+-	struct ath_softc *sc = vap->iv_ic->ic_dev->priv;;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = vap->iv_ic->ic_dev->ml_priv;
++#else
++	struct ath_softc *sc = vap->iv_ic->ic_dev->priv;
++#endif
+ 
+ 	IEEE80211_NODE_TABLE_LOCK_IRQ(nt);
+ 	TAILQ_FOREACH(ni, &nt->nt_node, ni_list) {
+diff -upr madwifi-trunk-r3878-20081204./ath_rate/onoe/onoe.c madwifi-trunk-r3878-20081204/ath_rate/onoe/onoe.c
+--- madwifi-trunk-r3878-20081204./ath_rate/onoe/onoe.c	2008-07-17 05:11:56.000000000 +0000
++++ madwifi-trunk-r3878-20081204/ath_rate/onoe/onoe.c	2009-04-08 22:13:20.475529556 +0000
+@@ -292,7 +292,11 @@ ath_rate_ctl_start(struct ath_softc *sc,
+ static void
+ ath_rate_cb(void *arg, struct ieee80211_node *ni)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	ath_rate_update(ni->ni_ic->ic_dev->ml_priv, ni, (long) arg);
++#else
+ 	ath_rate_update(ni->ni_ic->ic_dev->priv, ni, (long) arg);
++#endif
+ }
+ 
+ /*
+@@ -302,7 +306,11 @@ static void
+ ath_rate_newstate(struct ieee80211vap *vap, enum ieee80211_state state)
+ {
+ 	struct ieee80211com *ic = vap->iv_ic;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ath_softc *sc = ic->ic_dev->ml_priv;
++#else
+ 	struct ath_softc *sc = ic->ic_dev->priv;
++#endif
+ 	struct ieee80211_node *ni;
+ 
+ 	if (state == IEEE80211_S_INIT)
+diff -upr madwifi-trunk-r3878-20081204./ath_rate/sample/sample.c madwifi-trunk-r3878-20081204/ath_rate/sample/sample.c
+--- madwifi-trunk-r3878-20081204./ath_rate/sample/sample.c	2008-07-24 00:38:37.000000000 +0000
++++ madwifi-trunk-r3878-20081204/ath_rate/sample/sample.c	2009-04-08 22:13:20.475529556 +0000
+@@ -941,7 +941,11 @@ ath_rate_ctl_reset(struct ath_softc *sc,
+ static void
+ ath_rate_cb(void *arg, struct ieee80211_node *ni)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	ath_rate_ctl_reset(ni->ni_ic->ic_dev->ml_priv, ni);
++#else
+ 	ath_rate_ctl_reset(ni->ni_ic->ic_dev->priv, ni);
++#endif
+ }
+ 
+ /*
+@@ -959,7 +963,11 @@ ath_rate_newstate(struct ieee80211vap *v
+ 			 */
+ 			ieee80211_iterate_nodes(&ic->ic_sta, ath_rate_cb, NULL);
+ 		}
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++		ath_rate_newassoc(ic->ic_dev->ml_priv, ATH_NODE(vap->iv_bss), 1);
++#else
+ 		ath_rate_newassoc(ic->ic_dev->priv, ATH_NODE(vap->iv_bss), 1);
++#endif
+ 	}
+ }
+ 
+diff -upr madwifi-trunk-r3878-20081204./net80211/ieee80211.c madwifi-trunk-r3878-20081204/net80211/ieee80211.c
+--- madwifi-trunk-r3878-20081204./net80211/ieee80211.c	2008-08-27 17:18:39.000000000 +0000
++++ madwifi-trunk-r3878-20081204/net80211/ieee80211.c	2009-04-08 22:13:20.475529556 +0000
+@@ -407,7 +407,11 @@ ieee80211_vap_setup(struct ieee80211com 
+ #define	IEEE80211_C_OPMODE \
+ 	(IEEE80211_C_IBSS | IEEE80211_C_HOSTAP | IEEE80211_C_AHDEMO | \
+ 	 IEEE80211_C_MONITOR)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct net_device *parent = ic->ic_dev;
+ 	int err;
+ 
+@@ -1262,7 +1266,11 @@ media_status(enum ieee80211_opmode opmod
+ static void
+ ieee80211com_media_status(struct net_device *dev, struct ifmediareq *imr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211com *ic = dev->ml_priv;	/* XXX */
++#else
+ 	struct ieee80211com *ic = dev->priv;	/* XXX */
++#endif
+ 
+ 	imr->ifm_status = IFM_AVALID;
+ 	if (!TAILQ_EMPTY(&ic->ic_vaps))
+@@ -1314,7 +1322,11 @@ media2mode(const struct ifmedia_entry *i
+ static int
+ ieee80211com_media_change(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211com *ic = dev->ml_priv;	/* XXX */
++#else
+ 	struct ieee80211com *ic = dev->priv;	/* XXX */
++#endif
+ 	struct ieee80211vap *vap;
+ 	struct ifmedia_entry *ime = ic->ic_media.ifm_cur;
+ 	enum ieee80211_phymode newphymode;
+@@ -1418,7 +1430,11 @@ checkrate(struct ieee80211com *ic, enum 
+ int
+ ieee80211_media_change(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ifmedia_entry *ime = vap->iv_media.ifm_cur;
+ 	enum ieee80211_phymode newmode;
+@@ -1456,7 +1472,11 @@ EXPORT_SYMBOL(ieee80211_media_change);
+ void
+ ieee80211_media_status(struct net_device *dev, struct ifmediareq *imr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	enum ieee80211_phymode mode;
+ 	struct ieee80211_rateset *rs;
+@@ -1662,7 +1682,11 @@ EXPORT_SYMBOL(ieee80211_media2rate);
+ static struct net_device_stats *
+ ieee80211_getstats(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct net_device_stats *stats = &vap->iv_devstats;
+ 
+ 	/* XXX: Total guess as to what to count where */
+@@ -1701,7 +1725,11 @@ ieee80211_change_mtu(struct net_device *
+ static void
+ ieee80211_set_multicast_list(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct net_device *parent = ic->ic_dev;
+ 
+diff -upr madwifi-trunk-r3878-20081204./net80211/ieee80211_linux.c madwifi-trunk-r3878-20081204/net80211/ieee80211_linux.c
+--- madwifi-trunk-r3878-20081204./net80211/ieee80211_linux.c	2008-06-22 05:32:29.000000000 +0000
++++ madwifi-trunk-r3878-20081204/net80211/ieee80211_linux.c	2009-04-08 22:13:20.475529556 +0000
+@@ -181,7 +181,11 @@ EXPORT_SYMBOL(ieee80211_getmgtframe);
+ static void
+ ieee80211_vlan_register(struct net_device *dev, struct vlan_group *grp)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	vap->iv_vlgrp = grp;
+ }
+@@ -192,7 +196,11 @@ ieee80211_vlan_register(struct net_devic
+ static void
+ ieee80211_vlan_add_vid(struct net_device *dev, unsigned short vid)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	if (vap->iv_vlgrp != NULL)
+ 		vap->iv_bss->ni_vlan = vid;
+@@ -204,7 +212,11 @@ ieee80211_vlan_add_vid(struct net_device
+ static void
+ ieee80211_vlan_kill_vid(struct net_device *dev, unsigned short vid)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	if (vap->iv_vlgrp != NULL)
+ 		vlan_group_set_device(vap->iv_vlgrp, vid, NULL);
+@@ -967,8 +979,13 @@ ieee80211_rcv_dev_event(struct notifier_
+ 
+ 	switch (event) {
+ 	case NETDEV_CHANGENAME:
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++		ieee80211_virtfs_vdetach(dev->ml_priv);
++		ieee80211_virtfs_latevattach(dev->ml_priv);
++#else
+ 		ieee80211_virtfs_vdetach(dev->priv);
+ 		ieee80211_virtfs_latevattach(dev->priv);
++#endif
+ 		return NOTIFY_DONE;
+ 	default:
+ 		break;
+diff -upr madwifi-trunk-r3878-20081204./net80211/ieee80211_output.c madwifi-trunk-r3878-20081204/net80211/ieee80211_output.c
+--- madwifi-trunk-r3878-20081204./net80211/ieee80211_output.c	2008-07-17 03:44:41.000000000 +0000
++++ madwifi-trunk-r3878-20081204/net80211/ieee80211_output.c	2009-04-08 22:13:20.475529556 +0000
+@@ -201,7 +201,11 @@ ieee80211_classify(struct ieee80211_node
+ int
+ ieee80211_hardstart(struct sk_buff *skb, struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct net_device *parent = ic->ic_dev;
+ 	struct ieee80211_node *ni = NULL;
+@@ -309,7 +313,11 @@ bad:
+  * SKB is consumed in all cases.
+  */
+ void ieee80211_parent_queue_xmit(struct sk_buff *skb) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = skb->dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = skb->dev->priv;
++#endif
+ 
+ 	vap->iv_devstats.tx_packets++;
+ 	vap->iv_devstats.tx_bytes += skb->len;
+diff -upr madwifi-trunk-r3878-20081204./net80211/ieee80211_proto.c madwifi-trunk-r3878-20081204/net80211/ieee80211_proto.c
+--- madwifi-trunk-r3878-20081204./net80211/ieee80211_proto.c	2008-06-19 16:58:07.000000000 +0000
++++ madwifi-trunk-r3878-20081204/net80211/ieee80211_proto.c	2009-04-08 22:13:20.478862674 +0000
+@@ -952,7 +952,11 @@ ieee80211_init(struct net_device *dev, i
+ {
+ #define	IS_RUNNING(_dev) \
+ 	((_dev->flags & (IFF_RUNNING|IFF_UP)) == (IFF_RUNNING|IFF_UP))
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct net_device *parent = ic->ic_dev;
+ 
+@@ -1095,7 +1099,11 @@ EXPORT_SYMBOL(ieee80211_start_running);
+ int
+ ieee80211_stop(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct net_device *parent = ic->ic_dev;
+ 
+diff -upr madwifi-trunk-r3878-20081204./net80211/ieee80211_wireless.c madwifi-trunk-r3878-20081204/net80211/ieee80211_wireless.c
+--- madwifi-trunk-r3878-20081204./net80211/ieee80211_wireless.c	2008-07-18 22:00:42.000000000 +0000
++++ madwifi-trunk-r3878-20081204/net80211/ieee80211_wireless.c	2009-04-08 22:13:20.478862674 +0000
+@@ -79,7 +79,11 @@ pre_announced_chanswitch(struct net_devi
+ static int
+ preempt_scan(struct net_device *dev, int max_grace, int max_wait)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	int total_delay = 0;
+ 	int canceled = 0, ready = 0;
+@@ -114,7 +118,11 @@ preempt_scan(struct net_device *dev, int
+ static struct iw_statistics *
+ ieee80211_iw_getstats(struct net_device *dev)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct iw_statistics *is = &vap->iv_iwstats;
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 
+@@ -138,7 +146,11 @@ static int
+ ieee80211_ioctl_giwname(struct net_device *dev, struct iw_request_info *info,
+ 	char *name, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211_channel *c = vap->iv_ic->ic_curchan;
+ 
+ 	if (IEEE80211_IS_CHAN_108G(c))
+@@ -190,7 +202,11 @@ static int
+ ieee80211_ioctl_siwencode(struct net_device *dev,
+ 	struct iw_request_info *info, struct iw_point *erq, char *keybuf)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	int error;
+ 	int wepchange = 0;
+ 	ieee80211_keyix_t kix;
+@@ -299,7 +315,11 @@ static int
+ ieee80211_ioctl_giwencode(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *erq, char *key)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211_key *k;
+ 	int error;
+ 	ieee80211_keyix_t kix;
+@@ -344,7 +364,11 @@ ieee80211_ioctl_siwrate(struct net_devic
+ 		IFM_IEEE80211_11A | IFM_IEEE80211_TURBO,
+ 		IFM_IEEE80211_11G | IFM_IEEE80211_TURBO,
+ 	};
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ifreq ifr;
+ 	int rate, retv;
+@@ -382,7 +406,11 @@ static int
+ ieee80211_ioctl_giwrate(struct net_device *dev,	struct iw_request_info *info,
+ 	struct iw_param *rrq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ifmediareq imr;
+ 	int rate;
+ 
+@@ -420,7 +448,11 @@ static int
+ ieee80211_ioctl_siwrts(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_param *rts, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	u16 val;
+ 
+@@ -443,7 +475,11 @@ static int
+ ieee80211_ioctl_giwrts(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_param *rts, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	rts->value = vap->iv_rtsthreshold;
+ 	rts->disabled = (rts->value == IEEE80211_RTS_MAX);
+@@ -456,7 +492,11 @@ static int
+ ieee80211_ioctl_siwfrag(struct net_device *dev,	struct iw_request_info *info,
+ 	struct iw_param *rts, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	u16 val;
+ 
+@@ -479,7 +519,11 @@ static int
+ ieee80211_ioctl_giwfrag(struct net_device *dev,	struct iw_request_info *info,
+ 	struct iw_param *rts, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	rts->value = vap->iv_fragthreshold;
+ 	rts->disabled = (rts->value == 2346);
+@@ -492,7 +536,11 @@ static int
+ ieee80211_ioctl_siwap(struct net_device *dev, struct iw_request_info *info,
+ 	struct sockaddr *ap_addr, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	/* NB: should not be set when in AP mode */
+ 	if (vap->iv_opmode == IEEE80211_M_HOSTAP)
+@@ -528,7 +576,11 @@ static int
+ ieee80211_ioctl_giwap(struct net_device *dev, struct iw_request_info *info,
+ 	struct sockaddr *ap_addr, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	if (vap->iv_flags & IEEE80211_F_DESBSSID)
+ 		IEEE80211_ADDR_COPY(&ap_addr->sa_data, vap->iv_des_bssid);
+@@ -549,7 +601,11 @@ static int
+ ieee80211_ioctl_siwnickn(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *data, char *nickname)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	if (data->length > IEEE80211_NWID_LEN)
+ 		return -E2BIG;
+@@ -565,7 +621,11 @@ static int
+ ieee80211_ioctl_giwnickn(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *data, char *nickname)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	if (data->length > vap->iv_nicknamelen + 1)
+ 		data->length = vap->iv_nicknamelen + 1;
+@@ -674,7 +734,11 @@ static int
+ ieee80211_ioctl_siwfreq(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_freq *freq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211_channel *c, *c2;
+ 	int i;
+@@ -792,7 +856,11 @@ static int
+ ieee80211_ioctl_giwfreq(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_freq *freq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 
+ 	if (vap->iv_state == IEEE80211_S_RUN &&
+@@ -833,7 +901,11 @@ static int
+ ieee80211_ioctl_siwessid(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *data, char *ssid)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	if (vap->iv_opmode == IEEE80211_M_WDS)
+ 		return -EOPNOTSUPP;
+@@ -878,7 +950,11 @@ static int
+ ieee80211_ioctl_giwessid(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *data, char *essid)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	if (vap->iv_opmode == IEEE80211_M_WDS)
+ 		return -EOPNOTSUPP;
+@@ -909,7 +985,11 @@ static int
+ ieee80211_ioctl_giwrange(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *data, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211_node *ni = vap->iv_bss;
+ 	struct iw_range *range = (struct iw_range *)extra;
+@@ -1053,7 +1133,11 @@ ieee80211_ioctl_setspy(struct net_device
+ 	struct iw_point *data, char *extra)
+ {
+ 	/* save the list of node addresses */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct sockaddr address[IW_MAX_SPY];
+ 	unsigned int number = data->length;
+ 	int i;
+@@ -1091,7 +1175,11 @@ ieee80211_ioctl_getspy(struct net_device
+ 	 * locate nodes by mac (ieee80211_find_node()),
+ 	 * copy out rssi, set updated flag appropriately
+ 	 */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211_node_table *nt = &vap->iv_ic->ic_sta;
+ 	struct ieee80211_node *ni;
+ 	struct ieee80211com *ic = vap->iv_ic;
+@@ -1143,7 +1231,11 @@ static int
+ ieee80211_ioctl_setthrspy(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *data, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct iw_thrspy threshold;
+ 
+ 	if (data->length != 1)
+@@ -1180,7 +1272,11 @@ static int
+ ieee80211_ioctl_getthrspy(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *data, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct iw_thrspy *threshold;
+ 
+@@ -1201,7 +1297,11 @@ static int
+ ieee80211_ioctl_siwmode(struct net_device *dev, struct iw_request_info *info,
+ 	__u32 *mode, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ifmediareq imr;
+ 	int valid = 0;
+ 
+@@ -1226,7 +1326,11 @@ static int
+ ieee80211_ioctl_giwmode(struct net_device *dev,	struct iw_request_info *info,
+ 	__u32 *mode, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ifmediareq imr;
+ 
+ 	memset(&imr, 0, sizeof(imr));
+@@ -1249,7 +1353,11 @@ static int
+ ieee80211_ioctl_siwpower(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_param *wrq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 
+ 	/* XXX: These values, flags, and caps do not seem to be used elsewhere 
+@@ -1288,7 +1396,11 @@ static int
+ ieee80211_ioctl_giwpower(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_param *rrq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 
+ 	rrq->disabled = (ic->ic_flags & IEEE80211_F_PMGTON) == 0;
+@@ -1312,7 +1424,11 @@ static int
+ ieee80211_ioctl_siwretry(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_param *rrq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 
+ 	if (rrq->disabled) {
+@@ -1344,7 +1460,11 @@ static int
+ ieee80211_ioctl_giwretry(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_param *rrq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	rrq->disabled = (vap->iv_flags & IEEE80211_F_SWRETRY) == 0;
+ 	if (!rrq->disabled) {
+@@ -1375,7 +1495,11 @@ static int
+ ieee80211_ioctl_siwtxpow(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_param *rrq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	int fixed, disabled;
+ 
+@@ -1432,7 +1556,11 @@ ieee80211_get_txcont(struct net_device *
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	params[0] = ic->ic_get_txcont(ic);
+ 	return 0;
+@@ -1443,7 +1571,11 @@ ieee80211_get_dfs_cac_time(struct net_de
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	params[0] = ic->ic_get_dfs_cac_time(ic);
+ 	return 0;
+@@ -1454,7 +1586,11 @@ ieee80211_get_dfs_excl_period(struct net
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	params[0] = ic->ic_get_dfs_excl_period(ic);
+ 	return 0;
+@@ -1464,7 +1600,11 @@ ieee80211_set_dfs_cac_time(struct net_de
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	ic->ic_set_dfs_cac_time(ic, params[1]);
+ 	return 0;
+@@ -1474,7 +1614,11 @@ ieee80211_set_dfs_excl_period  (struct n
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	ic->ic_set_dfs_excl_period(ic, params[1]);
+ 	return 0;
+@@ -1485,7 +1629,11 @@ ieee80211_get_dfs_testmode(struct net_de
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	params[0] = ic->ic_get_dfs_testmode(ic);
+ 	return 0;
+@@ -1496,7 +1644,11 @@ ieee80211_get_txcont_rate(struct net_dev
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	params[0] = ic->ic_get_txcont_rate(ic);
+ 	return 0;
+@@ -1507,7 +1659,11 @@ ieee80211_set_txcont(struct net_device *
+ 		void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	ic->ic_set_txcont(ic, params[1]);
+ 	return 0;
+@@ -1518,7 +1674,11 @@ ieee80211_set_dfs_testmode(struct net_de
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	ic->ic_set_dfs_testmode(ic, params[1]);
+ 	return 0;
+@@ -1529,7 +1689,11 @@ ieee80211_set_txcont_rate(struct net_dev
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	ic->ic_set_txcont_rate(ic, params[1]);
+ 	return 0;
+@@ -1540,7 +1704,11 @@ ieee80211_set_txcont_power(struct net_de
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	ic->ic_set_txcont_power(ic, params[1]);
+ 	return 0;
+@@ -1551,7 +1719,11 @@ ieee80211_get_txcont_power(struct net_de
+ 		struct iw_request_info *info, void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	params[0] = ic->ic_get_txcont_power(ic);
+ 	return 0;
+@@ -1562,7 +1734,11 @@ ieee80211_ioctl_hal_map(struct net_devic
+        void *w, char *extra)
+ {
+        int *params = (int *)extra;
+-       struct ieee80211vap *vap = dev->priv;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
++	struct ieee80211vap *vap = dev->priv;
++#endif
+        struct ieee80211com *ic = vap->iv_ic;
+        params[0] = ic->ic_dump_hal_map(ic);
+        return 0;
+@@ -1574,7 +1750,11 @@ ieee80211_ioctl_radar(struct net_device 
+ 	void *w, char *extra)
+ {
+ 	int *params = (int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	if (!(ic->ic_flags & IEEE80211_F_DOTH))
+ 		return 0;
+@@ -1586,7 +1766,11 @@ static int
+ ieee80211_ioctl_giwtxpow(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_param *rrq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 
+ 	rrq->value = vap->iv_bss->ni_txpower / 2;
+@@ -1601,7 +1785,11 @@ static int
+ ieee80211_dump_registers(struct net_device *dev, struct iw_request_info *info, void *w, char *extra)
+ {
+ 	unsigned int *params = (unsigned int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	switch (params[1]) {
+ 	case 2:
+@@ -1624,7 +1812,11 @@ static int
+ ieee80211_ioctl_writereg(struct net_device *dev, struct iw_request_info *info, void *w, char *extra)
+ {
+ 	unsigned int *params = (unsigned int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	return ic->ic_write_register(ic, params[0], params[1]);
+ }
+@@ -1635,7 +1827,11 @@ static int
+ ieee80211_ioctl_readreg(struct net_device *dev, struct iw_request_info *info, void *w, char *extra)
+ {
+ 	unsigned int *params = (unsigned int *)extra;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	return ic->ic_read_register(ic, params[0], &params[0]);
+ }
+@@ -1671,7 +1867,11 @@ static int
+ ieee80211_ioctl_iwaplist(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *data, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct waplistreq req;		/* XXX off stack */
+ 
+@@ -1693,7 +1893,11 @@ static int
+ ieee80211_ioctl_siwscan(struct net_device *dev,	struct iw_request_info *info,
+ 	struct iw_point *data, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	/*
+ 	 * XXX don't permit a scan to be started unless we
+@@ -2028,7 +2232,11 @@ static int
+ ieee80211_ioctl_giwscan(struct net_device *dev,	struct iw_request_info *info,
+ 	struct iw_point *data, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct iwscanreq req;
+ 	int res = 0;
+@@ -2130,7 +2338,11 @@ static int
+ ieee80211_ioctl_setmode(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *wri, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ifreq ifr;
+ 	char s[6];		/* big enough for ``11adt'' */
+@@ -2254,10 +2466,15 @@ ieee80211_setathcap(struct ieee80211vap 
+ static int
+ ieee80211_set_turbo(struct net_device *dev, int flag)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++	struct ieee80211vap *tmpvap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++	struct ieee80211vap *tmpvap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ifreq ifr;
+-	struct ieee80211vap *tmpvap = dev->priv;
+ 	int nvap = 0;
+ 
+ 	TAILQ_FOREACH(tmpvap, &ic->ic_vaps, iv_next)
+@@ -2278,7 +2495,11 @@ static int
+ ieee80211_ioctl_setparam(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211_rsnparms *rsn = &vap->iv_bss->ni_rsn;
+ 	unsigned int *i = (unsigned int *)extra;
+@@ -2923,7 +3144,11 @@ static int
+ ieee80211_ioctl_getmode(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *wri, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ifmediareq imr;
+ 
+@@ -2961,7 +3186,11 @@ static int
+ ieee80211_ioctl_getparam(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211_rsnparms *rsn = &vap->iv_bss->ni_rsn;
+ 	unsigned int *param = (unsigned int *)extra;
+@@ -3276,7 +3505,11 @@ static int
+ ieee80211_ioctl_setoptie(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *wri, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	void *ie;
+ 
+ 	/*
+@@ -3310,7 +3543,11 @@ static int
+ ieee80211_ioctl_getoptie(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *wri, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	if (vap->iv_opt_ie == NULL) {
+ 		wri->length = 0;
+@@ -3374,7 +3611,11 @@ ieee80211_ioctl_setappiebuf(struct net_d
+ 	struct iw_request_info *info,
+ 	struct iw_point *data, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211req_getset_appiebuf *iebuf =
+ 		(struct ieee80211req_getset_appiebuf *)extra;
+ 	enum ieee80211_opmode chk_opmode;
+@@ -3416,7 +3657,11 @@ static int
+ ieee80211_ioctl_getappiebuf(struct net_device *dev, struct iw_request_info *info,
+ 	struct iw_point *data, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211req_getset_appiebuf *iebuf =
+ 		(struct ieee80211req_getset_appiebuf *)extra;
+ 	int max_iebuf_len;
+@@ -3457,7 +3702,11 @@ static int
+ ieee80211_ioctl_setfilter(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211req_set_filter *app_filter = (struct ieee80211req_set_filter *)extra;
+ 
+ 	if ((extra == NULL) || (app_filter->app_filterype & ~IEEE80211_FILTER_TYPE_ALL))
+@@ -3472,7 +3721,11 @@ static int
+ ieee80211_ioctl_setkey(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211req_key *ik = (struct ieee80211req_key *)extra;
+ 	struct ieee80211_node *ni;
+@@ -3555,7 +3808,11 @@ ieee80211_ioctl_setkey(struct net_device
+ static int
+ ieee80211_ioctl_getkey(struct net_device *dev, struct iwreq *iwr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211_node *ni;
+ 	struct ieee80211req_key ik;
+@@ -3616,7 +3873,11 @@ static int
+ ieee80211_ioctl_delkey(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211req_del_key *dk = (struct ieee80211req_del_key *)extra;
+ 	ieee80211_keyix_t kix;
+@@ -3690,7 +3951,11 @@ static int
+ ieee80211_ioctl_setmlme(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211req_mlme *mlme = (struct ieee80211req_mlme *)extra;
+ 	struct ieee80211_node *ni;
+@@ -3792,7 +4057,11 @@ static int
+ ieee80211_ioctl_wdsmac(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct sockaddr *sa = (struct sockaddr *)extra;
+ 
+ 	if (!IEEE80211_ADDR_NULL(vap->wds_mac)) {
+@@ -3821,7 +4090,11 @@ static int
+ ieee80211_ioctl_wdsdelmac(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct sockaddr *sa = (struct sockaddr *)extra;
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211_node *wds_ni;
+@@ -3884,7 +4157,11 @@ static int
+ ieee80211_ioctl_addmac(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct sockaddr *sa = (struct sockaddr *)extra;
+ 	const struct ieee80211_aclator *acl = vap->iv_acl;
+ 
+@@ -3902,7 +4179,11 @@ static int
+ ieee80211_ioctl_delmac(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct sockaddr *sa = (struct sockaddr *)extra;
+ 	const struct ieee80211_aclator *acl = vap->iv_acl;
+ 
+@@ -3920,7 +4201,11 @@ static int
+ ieee80211_ioctl_setchanlist(struct net_device *dev,
+ 	struct iw_request_info *info, void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211req_chanlist *list =
+ 		(struct ieee80211req_chanlist *)extra;
+@@ -3966,7 +4251,11 @@ static int
+ ieee80211_ioctl_getchanlist(struct net_device *dev,
+ 	struct iw_request_info *info, void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 
+ 	memcpy(extra, ic->ic_chan_active, sizeof(ic->ic_chan_active));
+@@ -3977,7 +4266,11 @@ static int
+ ieee80211_ioctl_getchaninfo(struct net_device *dev,
+ 	struct iw_request_info *info, void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211req_chaninfo chans;
+ 	u_int8_t reported[IEEE80211_CHAN_BYTES];	/* XXX stack usage? */
+@@ -4020,7 +4313,11 @@ static int
+ ieee80211_ioctl_setwmmparams(struct net_device *dev,
+ 	struct iw_request_info *info, void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	unsigned int *param = (unsigned int *)extra;
+ 	unsigned int ac = (param[1] < WME_NUM_AC) ? param[1] : WME_AC_BE;
+ 	unsigned int bss = param[2];
+@@ -4108,7 +4405,11 @@ static int
+ ieee80211_ioctl_getwmmparams(struct net_device *dev,
+ 	struct iw_request_info *info, void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	unsigned int *param = (unsigned int *)extra;
+ 	unsigned int ac = (param[1] < WME_NUM_AC) ? param[1] : WME_AC_BE;
+ 	struct ieee80211_wme_state *wme = &vap->iv_ic->ic_wme;
+@@ -4143,7 +4444,11 @@ ieee80211_ioctl_getwmmparams(struct net_
+ static int
+ ieee80211_ioctl_getwpaie(struct net_device *dev, struct iwreq *iwr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211_node *ni;
+ 	struct ieee80211req_wpaie wpaie;
+@@ -4177,7 +4482,11 @@ ieee80211_ioctl_getwpaie(struct net_devi
+ static int
+ ieee80211_ioctl_getstastats(struct net_device *dev, struct iwreq *iwr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct ieee80211_node *ni;
+ 	u_int8_t macaddr[IEEE80211_ADDR_LEN];
+@@ -4296,7 +4605,11 @@ get_scan_result(void *arg, const struct 
+ static int
+ ieee80211_ioctl_getscanresults(struct net_device *dev, struct iwreq *iwr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct scanreq req;
+ 	int error;
+@@ -4454,7 +4767,11 @@ get_sta_info(void *arg, struct ieee80211
+ static int
+ ieee80211_ioctl_getstainfo(struct net_device *dev, struct iwreq *iwr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	struct stainforeq req;
+ 	int error;
+@@ -4488,7 +4805,11 @@ ieee80211_ioctl_getstainfo(struct net_de
+ 
+ static void
+ pre_announced_chanswitch(struct net_device *dev, u_int32_t channel, u_int32_t tbtt) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	/* now flag the beacon update to include the channel switch IE */
+ 	ic->ic_flags |= IEEE80211_F_CHANSWITCH;
+@@ -4500,7 +4821,11 @@ static int
+ ieee80211_ioctl_chanswitch(struct net_device *dev, struct iw_request_info *info,
+ 	void *w, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct ieee80211com *ic = vap->iv_ic;
+ 	unsigned int *param = (unsigned int *)extra;
+ 
+@@ -4545,7 +4870,11 @@ static int
+ ieee80211_ioctl_giwgenie(struct net_device *dev,
+ 	struct iw_request_info *info, struct iw_point *out, char *buf)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	if (out->length < vap->iv_opt_ie_len)
+ 		return -E2BIG;
+@@ -5078,7 +5407,11 @@ static int
+ ieee80211_ioctl_giwencodeext(struct net_device *dev,
+ 	struct iw_request_info *info, struct iw_point *erq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct iw_encode_ext *ext;
+ 	struct ieee80211_key *wk;
+ 	ieee80211_keyix_t kix;
+@@ -5138,7 +5471,11 @@ static int
+ ieee80211_ioctl_siwencodeext(struct net_device *dev,
+ 	struct iw_request_info *info, struct iw_point *erq, char *extra)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 	struct iw_encode_ext *ext = (struct iw_encode_ext *)extra;
+ 	struct ieee80211req_key kr;
+ 	ieee80211_keyix_t kix;
+@@ -5781,7 +6118,11 @@ static struct iw_handler_def ieee80211_i
+ static int
+ ieee80211_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
++	struct ieee80211vap *vap = dev->ml_priv;
++#else
+ 	struct ieee80211vap *vap = dev->priv;
++#endif
+ 
+ 	switch (cmd) {
+ 	case SIOCG80211STATS:
