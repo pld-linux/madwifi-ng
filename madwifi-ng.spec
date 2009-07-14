@@ -9,15 +9,15 @@
 %bcond_without	userspace	# don't build userspace module
 %bcond_with	verbose		# verbose build (V=1)
 #
-%define		snap_year	2008
-%define		snap_month	12
-%define		snap_day	04
+%define		snap_year	2009
+%define		snap_month	07
+%define		snap_day	14
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
-%define		trunk	r3878
+%define		trunk	r4079
 
-%define		rel		19
+%define		rel		1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %undefine	with_userspace
@@ -36,7 +36,7 @@ Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	bf12d0f9f306dad91bf7530586712dee
+# Source0-md5:	b9f725535d1154e2d8286ae3daadda7b
 # http://patches.aircrack-ng.org/madwifi-ng-r3745.patch
 Patch0:		%{pname}-r3745.patch
 # needed when build against (more noisy) pax enabled kernel
@@ -106,13 +106,13 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %prep
 %setup -q -n %{tname}-%{trunk}-%{snap}
 # airckrack-ng
-%patch0 -p1
+#%patch0 -p1
 # werror
-%patch1 -p1
+#%patch1 -p1
 # fix - ticket 617
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+#%patch2 -p1
+#%patch3 -p1
+#%patch4 -p1
 
 %build
 %if %{with userspace}
