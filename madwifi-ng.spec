@@ -105,7 +105,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %prep
 %setup -q -n %{tname}-%{trunk}-%{snap}
 # airckrack-ng
-#%patch0 -p1
+%patch0 -p0
 # werror
 %patch1 -p1
 # fix - ticket 617
