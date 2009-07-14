@@ -44,7 +44,6 @@ Patch1:		%{pname}-makefile-werror.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{pname}-ticket-617.patch
 Patch3:		%{pname}-ieee80211-skb-update.patch
-Patch4:		%{pname}-2.6.29.patch
 URL:		http://www.madwifi.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
@@ -108,11 +107,10 @@ Ten pakiet zawiera moduł jądra Linuksa.
 # airckrack-ng
 #%patch0 -p1
 # werror
-#%patch1 -p1
+%patch1 -p1
 # fix - ticket 617
-#%patch2 -p1
-#%patch3 -p1
-#%patch4 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
 %if %{with userspace}
