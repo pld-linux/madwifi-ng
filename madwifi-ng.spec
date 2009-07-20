@@ -1,7 +1,6 @@
 #
 # TODO:
 # - kernel header is additional BR  (whatever it means???)
-# - broken build without kernel
 #
 # Conditional build:
 %bcond_without	dist_kernel	# allow non-distribution kernel
