@@ -35,7 +35,8 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-Source0:	http://snapshots.madwifi.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
+#Source0:	http://snapshots.madwifi.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
+Source0:	%{tname}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	b9f725535d1154e2d8286ae3daadda7b
 # http://patches.aircrack-ng.org/madwifi-ng-r3745.patch
 Patch0:		%{pname}-r3745.patch
