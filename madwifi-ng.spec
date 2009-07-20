@@ -10,12 +10,12 @@
 %bcond_with	verbose		# verbose build (V=1)
 #
 %define		snap_year	2009
-%define		snap_month	06
-%define		snap_day	27
+%define		snap_month	07
+%define		snap_day	12
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
-%define		trunk	r4066
+%define		trunk	r4079
 
 %define		rel		1
 
@@ -36,9 +36,9 @@ Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi-project.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	08238ede52159c0f524273460fdbb221
-# http://patches.aircrack-ng.org/madwifi-ng-r3925.patch
-Patch0:		%{pname}-r3925.patch
+# Source0-md5:	0f44600f369d84d1efc54ffa4ae47319
+# http://patches.aircrack-ng.org/madwifi-ng-r4073.patch
+Patch0:		%{pname}-r4073.patch
 # needed when build against (more noisy) pax enabled kernel
 Patch1:		%{pname}-makefile-werror.patch
 # http://madwifi-project.org/ticket/617
