@@ -10,14 +10,14 @@
 %bcond_with	verbose		# verbose build (V=1)
 #
 %define		snap_year	2009
-%define		snap_month	07
-%define		snap_day	14
+%define		snap_month	09
+%define		snap_day	29
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
-%define		trunk	r4079
+%define		trunk	r4099
 
-%define		rel		8
+%define		rel		1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %undefine	with_userspace
@@ -35,9 +35,9 @@ License:	GPL/BSD (partial source)
 Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
-#Source0:	http://snapshots.madwifi.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
-Source0:	%{tname}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	b9f725535d1154e2d8286ae3daadda7b
+Source0:	http://snapshots.madwifi-project.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
+# Source0-md5:	cf1ab29cf708e6763f012778a8b7bd32
+#Source0:	%{tname}-%{trunk}-%{snap}.tar.gz
 # http://patches.aircrack-ng.org/madwifi-ng-r3745.patch
 Patch0:		%{pname}-r3745.patch
 # needed when build against (more noisy) pax enabled kernel
@@ -45,7 +45,7 @@ Patch1:		%{pname}-makefile-werror.patch
 # http://madwifi.org/ticket/617
 Patch2:		%{pname}-ticket-617.patch
 Patch3:		%{pname}-ieee80211-skb-update.patch
-URL:		http://www.madwifi.org/
+URL:		http://www.madwifi-project.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
 BuildRequires:	rpmbuild(macros) >= 1.379
