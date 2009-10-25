@@ -139,7 +139,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %define modules_wlan net80211/wlan,net80211/wlan_{wep,xauth,acl,ccmp,tkip,scan_{ap,sta}}
 %define modules %{modules_ath},%{modules_wlan}
 
-%define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" KERNELCONF="%{_kernelsrcdir}/config-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}" TOOLPREFIX=
+%define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" KERNELCONF="%{_kernelsrcdir}/config-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}" TOOLPREFIX= LDFLAGS_MODULE=
 
 %{__make} %{opts}  svnversion.h
 %build_kernel_modules -c -m %{modules} %{opts} <<'EOF'
