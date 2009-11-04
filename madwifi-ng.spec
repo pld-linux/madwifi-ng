@@ -20,7 +20,9 @@
 %define		rel		2
 
 %if "%{_alt_kernel}" != "%{nil}"
+%if %{with kernel}
 %undefine	with_userspace
+%endif
 %endif
 
 %define		pname	madwifi-ng
