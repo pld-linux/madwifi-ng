@@ -7,6 +7,7 @@
 %bcond_without	dist_kernel	# allow non-distribution kernel
 %bcond_without	kernel		# don't build kernel modules
 %bcond_without	userspace	# don't build userspace module
+%bcond_with	force_userspace	# force userspace build (useful if alt_kernel is set)
 %bcond_with	verbose		# verbose build (V=1)
 #
 %define		snap_year	2009
@@ -17,12 +18,19 @@
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4099
 
-%define		rel		3
+%define		rel		4
 
 %if "%{_alt_kernel}" != "%{nil}"
 %if %{with kernel}
 %undefine	with_userspace
 %endif
+%endif
+%if %{with force_userspace}
+%define		with_userspace 1
+%endif
+%if %{without userspace}
+# nothing to be placed to debuginfo package
+%define		_enable_debug_packages	0
 %endif
 
 %define		pname	madwifi-ng
@@ -39,26 +47,20 @@ Provides:	madwifi
 Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi-project.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	cf1ab29cf708e6763f012778a8b7bd32
-#Source0:	%{tname}-%{trunk}-%{snap}.tar.gz
-# http://patches.aircrack-ng.org/madwifi-ng-r3745.patch
-Patch0:		%{pname}-r3745.patch
+# http://patches.aircrack-ng.org/madwifi-ng-r4073.patch
+Patch0:		%{pname}-r4073.patch
 # needed when build against (more noisy) pax enabled kernel
 Patch1:		%{pname}-makefile-werror.patch
-# http://madwifi.org/ticket/617
+# http://madwifi-project.org/ticket/617
 Patch2:		%{pname}-ticket-617.patch
 Patch3:		%{pname}-ieee80211-skb-update.patch
-URL:		http://www.madwifi-project.org/
+URL:		http://madwifi-project.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
 BuildRequires:	rpmbuild(macros) >= 1.379
 %endif
 ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64 xscale
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-%if %{without userspace}
-# nothing to be placed to debuginfo package
-%define		_enable_debug_packages	0
-%endif
 
 %description
 Atheros WiFi card driver. Supports Virtual APs and WDS Mode. It uses
@@ -108,7 +110,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %prep
 %setup -q -n %{tname}-%{trunk}-%{snap}
 # airckrack-ng
-%patch0 -p0
+%patch0 -p1
 # werror
 %patch1 -p1
 # fix - ticket 617
