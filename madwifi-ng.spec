@@ -10,15 +10,15 @@
 %bcond_with	force_userspace	# force userspace build (useful if alt_kernel is set)
 %bcond_with	verbose		# verbose build (V=1)
 #
-%define		snap_year	2009
-%define		snap_month	09
-%define		snap_day	29
+%define		snap_year	2010
+%define		snap_month	03
+%define		snap_day	13
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
-%define		trunk	r4099
+%define		trunk	r4122
 
-%define		rel		10
+%define		rel		1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %if %{with kernel}
@@ -46,7 +46,7 @@ Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi-project.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	cf1ab29cf708e6763f012778a8b7bd32
+# Source0-md5:	0b6cb651507f37ad9e14cb2d9a4c8485
 # http://patches.aircrack-ng.org/madwifi-ng-r4073.patch
 Patch0:		%{pname}-r4073.patch
 # needed when build against (more noisy) pax enabled kernel
