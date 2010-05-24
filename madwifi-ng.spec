@@ -12,13 +12,13 @@
 #
 %define		snap_year	2010
 %define		snap_month	03
-%define		snap_day	13
+%define		snap_day	25
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
-%define		trunk	r4122
+%define		trunk	r4128
 
-%define		rel		7
+%define		rel		1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %if %{with kernel}
@@ -46,7 +46,7 @@ Group:		Base/Kernel
 Provides:	madwifi
 Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi-project.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
-# Source0-md5:	0b6cb651507f37ad9e14cb2d9a4c8485
+# Source0-md5:	9d4188bba2babbb4376bb45043cdf4d4
 # http://patches.aircrack-ng.org/madwifi-ng-r4073.patch
 Patch0:		%{pname}-r4073.patch
 # needed when build against (more noisy) pax enabled kernel
