@@ -11,14 +11,14 @@
 %bcond_with	verbose		# verbose build (V=1)
 #
 %define		snap_year	2010
-%define		snap_month	06
-%define		snap_day	20
+%define		snap_month	09
+%define		snap_day	21
 %define		snap		%{snap_year}%{snap_month}%{snap_day}
 %define		snapdate	%{snap_year}-%{snap_month}-%{snap_day}
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4132
 
-%define		rel		15
+%define		rel		1
 
 %if "%{_alt_kernel}" != "%{nil}"
 %if %{with kernel}
