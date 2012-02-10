@@ -1,11 +1,11 @@
---- madwifi-ng-r3556-20080421/Makefile.inc	2008-04-18 02:08:35.000000000 +0000
-+++ madwifi-ng-r3556-20080421/Makefile.inc	2008-07-22 18:41:38.000000000 +0000
-@@ -148,7 +148,7 @@
- TOOLS=  $(TOP)/tools 
+--- madwifi-trunk-r4177-20120131/Makefile.inc~	2011-10-07 23:42:25.000000000 +0200
++++ madwifi-trunk-r4177-20120131/Makefile.inc	2012-02-10 13:31:01.349184372 +0100
+@@ -135,7 +135,7 @@
+ TOOLS=  $(TOP)/tools
  
- WARNINGS = -Werror -Wall
+ WARNINGS = -Wall
 -COPTS+= $(WARNINGS)
 +#COPTS+= $(WARNINGS)
  INCS=	-include $(TOP)/include/compat.h -I$(TOP)/include
  
- # TARGET defines the target platform architecture. It must match one of
+ ifndef ATH_DEBUG_SPINLOCKS
