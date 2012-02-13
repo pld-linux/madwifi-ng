@@ -18,7 +18,7 @@
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4177
 
-%define		rel		3
+%define		rel		4
 
 %if "%{_alt_kernel}" != "%{nil}"
 %if %{with kernel}
@@ -147,10 +147,6 @@ Ten pakiet zawiera moduł jądra Linuksa.
 
 %{__make} %{opts}  svnversion.h
 %build_kernel_modules -c -m %{modules} %{opts}
-#<<'EOF'
-#find -name "*.o" | xargs -r rm
-#ln -sf ../Makefile.inc o/Makefile.inc
-#EOF
 
 %endif
 
