@@ -18,7 +18,7 @@
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4177
 
-%define		rel		2
+%define		rel		3
 
 %if "%{_alt_kernel}" != "%{nil}"
 %if %{with kernel}
@@ -56,8 +56,8 @@ Patch2:		%{pname}-ticket-617.patch
 Patch3:		%{pname}-ieee80211-skb-update.patch
 URL:		http://madwifi-project.org/
 %if %{with kernel}
-%{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
-BuildRequires:	rpmbuild(macros) >= 1.379
+%{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:3.0.21}
+BuildRequires:	rpmbuild(macros) >= 1.642
 %endif
 ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64 xscale
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -122,7 +122,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %{__make} -C tools \
 	CC="%{__cc}" \
 	CFLAGS="%{rpmcflags}" \
-	KERNELCONF="%{_kernelsrcdir}/config-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}"
+	KERNELPATH="%{_kernelsrcdir}"
 %endif
 
 %ifarch alpha %{ix86} %{x8664}
@@ -143,7 +143,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %define modules_wlan net80211/wlan,net80211/wlan_{wep,xauth,acl,ccmp,tkip,scan_{ap,sta}}
 %define modules %{modules_ath},%{modules_wlan}
 
-%define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" KERNELCONF="%{_kernelsrcdir}/config-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}" TOOLPREFIX= LDFLAGS_MODULE=
+%define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" TOOLPREFIX= LDFLAGS_MODULE=
 
 %{__make} %{opts}  svnversion.h
 %build_kernel_modules -c -m %{modules} %{opts} <<'EOF'
@@ -161,7 +161,6 @@ install -d $RPM_BUILD_ROOT%{_bindir}
 
 %{__make} install-tools \
 	TARGET=%{target} \
-	KERNELCONF="%{_kernelsrcdir}/config-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}" \
 	KERNELPATH="%{_kernelsrcdir}" \
 	DESTDIR=$RPM_BUILD_ROOT \
 	BINDIR=%{_bindir} \
