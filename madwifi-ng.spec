@@ -146,10 +146,11 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" TOOLPREFIX= LDFLAGS_MODULE=
 
 %{__make} %{opts}  svnversion.h
-%build_kernel_modules -c -m %{modules} %{opts} <<'EOF'
-find -name "*.o" | xargs -r rm
-ln -sf ../Makefile.inc o/Makefile.inc
-EOF
+%build_kernel_modules -c -m %{modules} %{opts}
+#<<'EOF'
+#find -name "*.o" | xargs -r rm
+#ln -sf ../Makefile.inc o/Makefile.inc
+#EOF
 
 %endif
 
