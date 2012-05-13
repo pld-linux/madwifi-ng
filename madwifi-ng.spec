@@ -18,7 +18,7 @@
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4177
 
-%define		rel		16
+%define		rel		17
 
 %if "%{_alt_kernel}" != "%{nil}"
 %if %{with kernel}
