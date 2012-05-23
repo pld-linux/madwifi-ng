@@ -109,7 +109,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 
 %prep
 %setup -q -n %{tname}-%{trunk}-%{snap}
-# airckrack-ng
+# aircrack-ng
 %patch0 -p1
 # werror
 %patch1 -p1
@@ -187,8 +187,26 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc COPYRIGHT README
-%attr(755,root,root) %{_bindir}/*
-%{_mandir}/man8/*
+%attr(755,root,root) %{_bindir}/80211debug
+%attr(755,root,root) %{_bindir}/80211stats
+%attr(755,root,root) %{_bindir}/ath_info
+%attr(755,root,root) %{_bindir}/athchans
+%attr(755,root,root) %{_bindir}/athctrl
+%attr(755,root,root) %{_bindir}/athdebug
+%attr(755,root,root) %{_bindir}/athkey
+%attr(755,root,root) %{_bindir}/athstats
+%attr(755,root,root) %{_bindir}/madwifi-unload
+%attr(755,root,root) %{_bindir}/wlanconfig
+%attr(755,root,root) %{_bindir}/wpakey
+%{_mandir}/man8/80211debug.8*
+%{_mandir}/man8/80211stats.8*
+%{_mandir}/man8/ath_info.8*
+%{_mandir}/man8/athchans.8*
+%{_mandir}/man8/athctrl.8*
+%{_mandir}/man8/athdebug.8*
+%{_mandir}/man8/athkey.8*
+%{_mandir}/man8/athstats.8*
+%{_mandir}/man8/wlanconfig.8*
 
 %files devel
 %defattr(644,root,root,755)
