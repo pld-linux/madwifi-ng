@@ -18,7 +18,7 @@
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4177
 
-%define		rel		26
+%define		rel		27
 
 %if "%{_alt_kernel}" != "%{nil}"
 %if %{with kernel}
@@ -54,6 +54,7 @@ Patch1:		%{pname}-makefile-werror.patch
 # http://madwifi-project.org/ticket/617
 Patch2:		%{pname}-ticket-617.patch
 Patch3:		%{pname}-ieee80211-skb-update.patch
+Patch4:		format-security.patch
 URL:		http://madwifi-project.org/
 %if %{with kernel}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:3.0.21}
@@ -116,6 +117,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 # fix - ticket 617
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 %if %{with userspace}

@@ -1,0 +1,46 @@
+--- madwifi-trunk-r4177-20120131/tools/80211stats.c~	2008-06-06 22:32:29.000000000 +0200
++++ madwifi-trunk-r4177-20120131/tools/80211stats.c	2012-09-25 14:38:32.502500897 +0200
+@@ -284,7 +284,7 @@
+ 		/* no args, just show global stats */
+ 		ifr.ifr_data = (caddr_t) &stats;
+ 		if (ioctl(s, SIOCG80211STATS, &ifr) < 0)
+-			err(1, ifr.ifr_name);
++			err(1, "%s", ifr.ifr_name);
+ 		printstats(stdout, &stats);
+ 		return 0;
+ 	}
+--- madwifi-trunk-r4177-20120131/tools/athstats.c~	2009-04-07 03:26:53.000000000 +0200
++++ madwifi-trunk-r4177-20120131/tools/athstats.c	2012-09-25 14:38:20.669167983 +0200
+@@ -285,9 +285,9 @@
+ 		if (line != 0) {
+ 			ifr.ifr_data = (caddr_t) &cur;
+ 			if (ioctl(s, SIOCGATHSTATS, &ifr) < 0)
+-				err(1, ifr.ifr_name);
++				err(1, "%s", ifr.ifr_name);
+ 			if (!getifstats(ifr.ifr_name, &icur, &ocur))
+-				err(1, ifr.ifr_name);
++				err(1, "%s", ifr.ifr_name);
+ 			printf("%8lu %8lu %7u %7u %7u %6u %6u %6u %7u %4u %3uM\n",
+ 				(icur - itot) -
+ 					(cur.ast_rx_mgt - total.ast_rx_mgt),
+@@ -307,9 +307,9 @@
+ 		} else {
+ 			ifr.ifr_data = (caddr_t) &total;
+ 			if (ioctl(s, SIOCGATHSTATS, &ifr) < 0)
+-				err(1, ifr.ifr_name);
++				err(1, "%s", ifr.ifr_name);
+ 			if (!getifstats(ifr.ifr_name, &itot, &otot))
+-				err(1, ifr.ifr_name);
++				err(1, "%s", ifr.ifr_name);
+ 			printf("%8lu %8lu %7u %7u %7u %6u %6u %6u %7u %4u %3uM\n",
+ 				itot - total.ast_rx_mgt,
+ 				otot,
+@@ -344,7 +344,7 @@
+ 
+ 		ifr.ifr_data = (caddr_t) &stats;
+ 		if (ioctl(s, SIOCGATHSTATS, &ifr) < 0)
+-			err(1, ifr.ifr_name);
++			err(1, "%s", ifr.ifr_name);
+ 		printstats(stdout, &stats);
+ 	}
+ 	return 0;
