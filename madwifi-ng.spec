@@ -168,8 +168,7 @@ Ten pakiet zawiera moduł jądra Linuksa.\
 %if %{with userspace}
 %{__make} -C tools \
 	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags}" \
-	KERNELPATH="%{_kernelsrcdir}"
+	CFLAGS="%{rpmcflags}"
 %endif
 
 %ifarch alpha %{ix86} %{x8664}
@@ -192,7 +191,6 @@ install -d $RPM_BUILD_ROOT%{_bindir}
 
 %{__make} install-tools \
 	TARGET=%{target} \
-	KERNELPATH="%{_kernelsrcdir}" \
 	DESTDIR=$RPM_BUILD_ROOT \
 	BINDIR=%{_bindir} \
 	MANDIR=%{_mandir}
