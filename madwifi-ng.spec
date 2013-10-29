@@ -7,9 +7,41 @@
 %bcond_without	dist_kernel	# allow non-distribution kernel
 %bcond_without	kernel		# don't build kernel modules
 %bcond_without	userspace	# don't build userspace module
-%bcond_with	force_userspace	# force userspace build (useful if alt_kernel is set)
 %bcond_with	verbose		# verbose build (V=1)
-#
+
+%if %{without kernel}
+%undefine	with_dist_kernel
+%endif
+
+# The goal here is to have main, userspace, package built once with
+# simple release number, and only rebuild kernel packages with kernel
+# version as part of release number, without the need to bump release
+# with every kernel change.
+%if 0%{?_pld_builder:1} && %{with kernel} && %{with userspace}
+%{error:kernel and userspace cannot be built at the same time on PLD builders}
+exit 1
+%endif
+
+%if "%{_alt_kernel}" != "%{nil}"
+%if 0%{?build_kernels:1}
+%{error:alt_kernel and build_kernels are mutually exclusive}
+exit 1
+%endif
+%undefine	with_userspace
+%global		_build_kernels		%{alt_kernel}
+%else
+%global		_build_kernels		%{?build_kernels:,%{?build_kernels}}
+%endif
+
+%if %{without userspace}
+# nothing to be placed to debuginfo package
+%define		_enable_debug_packages	0
+%endif
+
+%define		kbrs	%(echo %{_build_kernels} | tr , '\\n' | while read n ; do echo %%undefine alt_kernel ; [ -z "$n" ] || echo %%define alt_kernel $n ; echo "BuildRequires:kernel%%{_alt_kernel}-module-build >= 3:2.6.20.2" ; done)
+%define		kpkg	%(echo %{_build_kernels} | tr , '\\n' | while read n ; do echo %%undefine alt_kernel ; [ -z "$n" ] || echo %%define alt_kernel $n ; echo %%kernel_pkg ; done)
+%define		bkpkg	%(echo %{_build_kernels} | tr , '\\n' | while read n ; do echo %%undefine alt_kernel ; [ -z "$n" ] || echo %%define alt_kernel $n ; echo %%build_kernel_pkg ; done)
+
 %define		snap_year	2012
 %define		snap_month	01
 %define		snap_day	31
@@ -18,33 +50,22 @@
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4177
 
-%define		rel		74
-
-%if "%{_alt_kernel}" != "%{nil}"
-%if %{with kernel}
-%undefine	with_userspace
-%endif
-%endif
-%if %{with force_userspace}
-%define		with_userspace 1
-%endif
-%if %{without userspace}
-# nothing to be placed to debuginfo package
-%define		_enable_debug_packages	0
-%endif
+%define		rel		75
 
 %define		pname	madwifi-ng
 %define		tname	madwifi-trunk
 
+# default is ath_rate_sample now compiles, _onoe does not
+%define		modules_ath	ath/ath_pci,ath_hal/ath_hal,ath_rate/sample/ath_rate_sample
+%define		modules_wlan	net80211/wlan,net80211/wlan_{wep,xauth,acl,ccmp,tkip,scan_{ap,sta}}
+
 Summary:	Atheros WiFi card driver
 Summary(pl.UTF-8):	Sterownik karty radiowej Atheros
-Name:		%{pname}%{_alt_kernel}
+Name:		%{pname}%{?_pld_builder:%{?with_kernel:-kernel}}%{_alt_kernel}
 Version:	0
-Release:	%{prel}
+Release:	%{prel}%{?_pld_builder:%{?with_kernel:@%{_kernel_ver_str}}}
 License:	GPL/BSD (partial source)
 Group:		Base/Kernel
-Provides:	madwifi
-Obsoletes:	madwifi
 Source0:	http://snapshots.madwifi-project.org/madwifi-trunk/%{tname}-%{trunk}-%{snap}.tar.gz
 # Source0-md5:	10da9c87bce17879ee660a32cbf9cc83
 # http://patches.aircrack-ng.org/madwifi-ng-r4073.patch
@@ -56,10 +77,10 @@ Patch2:		%{pname}-ticket-617.patch
 Patch3:		%{pname}-ieee80211-skb-update.patch
 Patch4:		format-security.patch
 URL:		http://madwifi-project.org/
-%if %{with kernel}
-%{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:3.0.21}
-BuildRequires:	rpmbuild(macros) >= 1.642
-%endif
+BuildRequires:	rpmbuild(macros) >= 1.678
+%{?with_dist_kernel:%{expand:%kbrs}}
+Provides:	madwifi
+Obsoletes:	madwifi
 ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64 xscale
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -86,27 +107,51 @@ Header files for madwifi.
 %description devel -l pl.UTF-8
 Pliki nagłówkowe dla madwifi.
 
-%package -n kernel%{_alt_kernel}-net-madwifi-ng
-Summary:	Linux driver for Atheros cards
-Summary(pl.UTF-8):	Sterownik dla Linuksa do kart Atheros
-Release:	%{prel}@%{_kernel_ver_str}
-Group:		Base/Kernel
-Requires(post,postun):	/sbin/depmod
-%if %{with dist_kernel}
-%requires_releq_kernel
-Requires(postun):	%releq_kernel
-Obsoletes:	kernel-smp-net-madwifi-ng
-%endif
+%define	kernel_pkg()\
+%package -n kernel%{_alt_kernel}-net-madwifi-ng\
+Summary:	Linux driver for Atheros cards\
+Summary(pl.UTF-8):	Sterownik dla Linuksa do kart Atheros\
+Release:	%{prel}@%{_kernel_ver_str}\
+Group:		Base/Kernel\
+Requires(post,postun):	/sbin/depmod\
+%if %{with dist_kernel}\
+%requires_releq_kernel\
+Requires(postun):	%releq_kernel\
+Obsoletes:	kernel-smp-net-madwifi-ng\
+%endif\
+\
+%description -n kernel%{_alt_kernel}-net-madwifi-ng\
+This is driver for Atheros card for Linux.\
+\
+This package contains Linux module.\
+\
+%description -n kernel%{_alt_kernel}-net-madwifi-ng -l pl.UTF-8\
+Sterownik dla Linuksa do kart Atheros.\
+\
+Ten pakiet zawiera moduł jądra Linuksa.\
+\
+%files -n kernel%{_alt_kernel}-net-madwifi-ng\
+%defattr(644,root,root,755)\
+/lib/modules/%{_kernel_ver}/kernel/net/*.ko*\
+\
+%post	-n kernel%{_alt_kernel}-net-madwifi-ng\
+%depmod %{_kernel_ver}\
+\
+%postun	-n kernel%{_alt_kernel}-net-madwifi-ng\
+%depmod %{_kernel_ver}\
+%{nil}
 
-%description -n kernel%{_alt_kernel}-net-madwifi-ng
-This is driver for Atheros card for Linux.
+%define build_kernel_pkg()\
+# kernel module(s)\
+%define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" TOOLPREFIX= LDFLAGS_MODULE=\
+\
+%{__make} clean\
+%{__make} %{opts} svnversion.h\
+%build_kernel_modules -c -m %{modules_ath},%{modules_wlan} %{opts}\
+%install_kernel_modules -D installed -m %{modules_ath},%{modules_wlan} -d kernel/net\
+%{nil}
 
-This package contains Linux module.
-
-%description -n kernel%{_alt_kernel}-net-madwifi-ng -l pl.UTF-8
-Sterownik dla Linuksa do kart Atheros.
-
-Ten pakiet zawiera moduł jądra Linuksa.
+%{?with_kernel:%{expand:%kpkg}}
 
 %prep
 %setup -q -n %{tname}-%{trunk}-%{snap}
@@ -137,20 +182,7 @@ Ten pakiet zawiera moduł jądra Linuksa.
 %define target powerpc-be-elf
 %endif
 
-%if %{with kernel}
-# kernel module(s)
-
-# default is ath_rate_sample now compiles, _onoe does not
-%define modules_ath ath/ath_pci,ath_hal/ath_hal,ath_rate/sample/ath_rate_sample
-%define modules_wlan net80211/wlan,net80211/wlan_{wep,xauth,acl,ccmp,tkip,scan_{ap,sta}}
-%define modules %{modules_ath},%{modules_wlan}
-
-%define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" TOOLPREFIX= LDFLAGS_MODULE=
-
-%{__make} %{opts}  svnversion.h
-%build_kernel_modules -c -m %{modules} %{opts}
-
-%endif
+%{?with_kernel:%{expand:%bkpkg}}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -173,17 +205,12 @@ install include/sys/*.h $RPM_BUILD_ROOT%{_includedir}/madwifi/include/sys
 %endif
 
 %if %{with kernel}
-%install_kernel_modules -m %{modules} -d kernel/net
+install -d $RPM_BUILD_ROOT
+cp -a installed/* $RPM_BUILD_ROOT
 %endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-
-%post	-n kernel%{_alt_kernel}-net-madwifi-ng
-%depmod %{_kernel_ver}
-
-%postun	-n kernel%{_alt_kernel}-net-madwifi-ng
-%depmod %{_kernel_ver}
 
 %if %{with userspace}
 %files
@@ -213,10 +240,4 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/madwifi
-%endif
-
-%if %{with kernel}
-%files -n kernel%{_alt_kernel}-net-madwifi-ng
-%defattr(644,root,root,755)
-/lib/modules/%{_kernel_ver}/kernel/net/*.ko*
 %endif
