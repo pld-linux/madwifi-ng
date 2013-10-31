@@ -50,7 +50,7 @@ exit 1
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4177
 
-%define		rel		75
+%define		rel		76
 
 %define		pname	madwifi-ng
 %define		tname	madwifi-trunk
@@ -145,7 +145,7 @@ Ten pakiet zawiera moduł jądra Linuksa.\
 # kernel module(s)\
 %define opts TARGET=%{target} KERNELPATH="%{_kernelsrcdir}" TOOLPREFIX= LDFLAGS_MODULE=\
 \
-%{__make} clean\
+%{__make} %{opts} clean\
 %{__make} %{opts} svnversion.h\
 %build_kernel_modules -c -m %{modules_ath},%{modules_wlan} %{opts}\
 %install_kernel_modules -D installed -m %{modules_ath},%{modules_wlan} -d kernel/net\
