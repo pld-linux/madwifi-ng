@@ -50,7 +50,7 @@ exit 1
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4177
 
-%define		rel		76
+%define		rel		77
 
 %define		pname	madwifi-ng
 %define		tname	madwifi-trunk
@@ -189,7 +189,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with userspace}
 install -d $RPM_BUILD_ROOT%{_bindir}
 
-%{__make} install-tools \
+%{__make} -C tools install \
 	TARGET=%{target} \
 	DESTDIR=$RPM_BUILD_ROOT \
 	BINDIR=%{_bindir} \
