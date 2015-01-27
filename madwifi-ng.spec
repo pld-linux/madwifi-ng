@@ -30,7 +30,7 @@ exit 1
 %define		prel	0.%{snap}.%{rel}
 %define		trunk	r4177
 
-%define		rel		77
+%define		rel		78
 
 %define		pname	madwifi-ng
 %define		tname	madwifi-trunk
