@@ -4,14 +4,9 @@
 # - broken build without kernel
 #
 # Conditional build:
-%bcond_without	dist_kernel	# allow non-distribution kernel
 %bcond_without	kernel		# don't build kernel modules
 %bcond_without	userspace	# don't build userspace module
 %bcond_with	verbose		# verbose build (V=1)
-
-%if %{without kernel}
-%undefine	with_dist_kernel
-%endif
 
 # The goal here is to have main, userspace, package built once with
 # simple release number, and only rebuild kernel packages with kernel
@@ -78,7 +73,7 @@ Patch3:		%{pname}-ieee80211-skb-update.patch
 Patch4:		format-security.patch
 URL:		http://madwifi-project.org/
 BuildRequires:	rpmbuild(macros) >= 1.678
-%{?with_dist_kernel:%{expand:%kbrs}}
+%{?with_kernel:%{expand:%kbrs}}
 Provides:	madwifi
 Obsoletes:	madwifi
 ExclusiveArch:	alpha arm %{ix86} %{x8664} mips powerpc ppc sparc sparcv9 sparc64 xscale
@@ -114,11 +109,9 @@ Summary(pl.UTF-8):	Sterownik dla Linuksa do kart Atheros\
 Release:	%{prel}@%{_kernel_ver_str}\
 Group:		Base/Kernel\
 Requires(post,postun):	/sbin/depmod\
-%if %{with dist_kernel}\
 %requires_releq_kernel\
 Requires(postun):	%releq_kernel\
 Obsoletes:	kernel-smp-net-madwifi-ng\
-%endif\
 \
 %description -n kernel%{_alt_kernel}-net-madwifi-ng\
 This is driver for Atheros card for Linux.\
